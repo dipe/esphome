@@ -1,0 +1,80 @@
+esphome:
+  name: test_esp
+  platform: ESP8266
+  board: esp12e
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+i2c:
+  sda: 5
+  scl: 4
+  scan: True
+
+sensor:
+  - platform: htu21d
+    temperature:
+      name: "Living Room Temperature"
+    humidity:
+      name: "Living Room Humidity"
+    update_interval: 60s
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO16
+      mode: INPUT_PULLUP
+    name: "Taster16"
+  - platform: gpio
+    pin:
+      number: GPIO15
+      mode: INPUT_PULLUP
+    name: "Taster15"
+  - platform: gpio
+    pin:
+      number: GPIO14
+      mode: INPUT_PULLUP
+    name: "Taster14"
+  - platform: gpio
+    pin:
+      number: GPIO13
+      mode: INPUT_PULLUP
+    name: "Taster13"
+  - platform: gpio
+    pin:
+      number: GPIO12
+      mode: INPUT_PULLUP
+    name: "Taster12"
+  - platform: gpio
+    pin:
+      number: GPIO10
+      mode: INPUT_PULLUP
+    name: "Taster10"
+  - platform: gpio
+    pin:
+      number: GPIO9
+      mode: INPUT_PULLUP
+    name: "Taster9"
+  - platform: gpio
+    pin:
+      number: GPIO5
+      mode: INPUT_PULLUP
+    name: "Taster5"
+  - platform: gpio
+    pin:
+      number: GPIO4
+      mode: INPUT_PULLUP
+    name: "Taster4"
+  - platform: gpio
+    pin:
+      number: GPIO3
+      mode: INPUT_PULLUP
+    name: "Taster3"
+  - platform: gpio
+    pin:
+      number: GPIO2
+      mode: INPUT_PULLUP
+    name: "Taster2"
+

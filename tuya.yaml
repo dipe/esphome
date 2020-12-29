@@ -1,0 +1,38 @@
+esphome:
+  name: tuya
+  platform: ESP8266
+  board: esp12e
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+switch:
+- platform: gpio
+  pin: GPIO15
+  id: red_pin
+
+- platform: template
+  name: "Red LED"
+  optimistic: yes
+  id: redtemp
+  turn_on_action:
+  - while:
+      condition:
+        lambda: 'return true;'
+      then:
+      - switch.turn_on: red_pin
+      - delay: 500ms 
+      - switch.turn_off: red_pin
+      - delay: 500ms
+  turn_off_action:
+  - switch.turn_off: red_pin
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO4
+      mode: INPUT_PULLUP
+    name: "Taster4" # taster
+
