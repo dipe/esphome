@@ -10,24 +10,29 @@ packages:
 
 switch:
 - platform: gpio
-  pin: GPIO15
-  id: red_pin
-
-- platform: template
-  name: "Red LED"
-  optimistic: yes
-  id: redtemp
-  turn_on_action:
-  - while:
-      condition:
-        lambda: 'return true;'
-      then:
-      - switch.turn_on: red_pin
-      - delay: 500ms 
-      - switch.turn_off: red_pin
-      - delay: 500ms
-  turn_off_action:
-  - switch.turn_off: red_pin
+  pin: GPIO13
+  name: switch13
+- platform: gpio
+  pin: GPIO12
+  name: switch12
+- platform: gpio
+  pin: GPIO10
+  name: switch10
+- platform: gpio
+  pin: GPIO9
+  name: switch9
+- platform: gpio
+  pin: GPIO5
+  name: switch5
+- platform: gpio
+  pin: GPIO3
+  name: switch3
+- platform: gpio
+  pin: GPIO2
+  name: switch2
+- platform: gpio
+  pin: GPIO1
+  name: switch1
 
 binary_sensor:
   - platform: gpio
