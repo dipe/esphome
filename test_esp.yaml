@@ -21,6 +21,11 @@ sensor:
       name: "Living Room Humidity"
     update_interval: 60s
 
+switch:
+  - platform: gpio
+    pin: GPIO12
+    name: switch12
+
 binary_sensor:
   - platform: gpio
     pin:
@@ -42,11 +47,11 @@ binary_sensor:
       number: GPIO13
       mode: INPUT_PULLUP
     name: "Taster13"
-  - platform: gpio
-    pin:
-      number: GPIO12
-      mode: INPUT_PULLUP
-    name: "Taster12"
+#  - platform: gpio
+#    pin:
+#      number: GPIO12
+#      mode: INPUT_PULLUP
+#    name: "Taster12"
   - platform: gpio
     pin:
       number: GPIO10
