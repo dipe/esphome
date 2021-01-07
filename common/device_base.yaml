@@ -2,3 +2,8 @@ logger:
 
 ota:
 
+sensor:
+  - platform: uptime
+    name: uptime
+  - platform: wifi_signal
+    name: WiFi Signal
