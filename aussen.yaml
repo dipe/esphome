@@ -9,11 +9,12 @@ packages:
   device_base: !include common/device_base.yaml
 
 i2c:
-  sda: GPIO12
-  scl: GPIO14
+  sda: 4
+  scl: 5
 
 sensor:
   - platform: bme280
+    address: 0x76
     temperature:
       name: "Temperatur"
       id: temperature
