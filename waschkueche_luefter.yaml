@@ -11,9 +11,10 @@ packages:
 i2c:
   sda: 5
   scl: 4
-
+  
 sensor:
-  - platform: htu21d
+  - platform: bme280
+    address: 0x76
     temperature:
       name: "Temperatur"
     humidity:
