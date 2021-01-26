@@ -1,0 +1,87 @@
+esphome:
+  name: kellertuer
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+ use_address: waschkueche_steckdosen
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+i2c:
+  sda: GPIO12
+  scl: GPIO14
+
+sensor:
+  - platform: ade7953
+    voltage:
+      name: Voltage
+    current_a:
+      name: Current_2
+      filters:
+        - multiply: 0.1
+    current_b:
+      name: Current_1
+      filters:
+        - multiply: 0.88
+    active_power_a:
+      name: Power_2
+    active_power_b:
+      name: Power_1
+    update_interval: 60s
+
+  - platform: ntc
+    sensor: temp_resistance_reading
+    name: Temperature
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    calibration:
+      b_constant: 3350
+      reference_resistance: 10kOhm
+      reference_temperature: 25°C
+  - platform: resistance
+    id: temp_resistance_reading
+    sensor: temp_analog_reading
+    configuration: DOWNSTREAM
+    resistor: 32kOhm
+  - platform: adc
+    id: temp_analog_reading
+    pin: A0
+
+status_led:
+  pin:
+    number: GPIO0
+    inverted: yes
+
+binary_sensor:
+  - platform: gpio
+    pin: GPIO16
+    name: "ade7953 IRQ pin"
+    internal: true
+  - platform: gpio
+    pin:
+      number: GPIO13
+    name: Switch1
+    on_press:
+      then:
+        - switch.toggle: relay_1
+  - platform: gpio
+    pin:
+      number: GPIO5
+    name: Switch2
+    on_press:
+      then:
+        - switch.toggle: relay_2
+
+switch:
+  - platform: gpio
+    id: relay_1
+    name: Relay1
+    pin: GPIO4
+  - platform: gpio
+    id: relay_2
+    name: Relay2
+    pin: GPIO15
