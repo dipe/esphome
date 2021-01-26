@@ -8,78 +8,32 @@ packages:
   mqtt: !include common/mqtt.yaml
   device_base: !include common/device_base.yaml
 
-i2c:
-  sda: 5
-  scl: 4
-  scan: True
-
-sensor:
-  - platform: htu21d
-    temperature:
-      name: "Living Room Temperature"
-    humidity:
-      name: "Living Room Humidity"
-    update_interval: 60s
-
-switch:
-  - platform: gpio
-    pin: GPIO12
-    name: switch12
-
 binary_sensor:
-  - platform: gpio
-    pin:
-      number: GPIO16
-      mode: INPUT_PULLUP
-    name: "Taster16"
-  - platform: gpio
-    pin:
-      number: GPIO15
-      mode: INPUT_PULLUP
-    name: "Taster15"
-  - platform: gpio
-    pin:
-      number: GPIO14
-      mode: INPUT_PULLUP
-    name: "Taster14"
   - platform: gpio
     pin:
       number: GPIO13
       mode: INPUT_PULLUP
     name: "Taster13"
-#  - platform: gpio
-#    pin:
-#      number: GPIO12
-#      mode: INPUT_PULLUP
-#    name: "Taster12"
-  - platform: gpio
-    pin:
-      number: GPIO10
-      mode: INPUT_PULLUP
-    name: "Taster10"
-  - platform: gpio
-    pin:
-      number: GPIO9
-      mode: INPUT_PULLUP
-    name: "Taster9"
-  - platform: gpio
-    pin:
-      number: GPIO5
-      mode: INPUT_PULLUP
-    name: "Taster5"
-  - platform: gpio
-    pin:
-      number: GPIO4
-      mode: INPUT_PULLUP
-    name: "Taster4"
-  - platform: gpio
-    pin:
-      number: GPIO3
-      mode: INPUT_PULLUP
-    name: "Taster3"
-  - platform: gpio
-    pin:
-      number: GPIO2
-      mode: INPUT_PULLUP
-    name: "Taster2"
+
+switch:
+  - platform: template
+    name: "servo"
+    turn_on_action:
+      - servo.write:
+          id: my_servo
+          level: -100.0%
+    turn_off_action:
+      - servo.write:
+          id: my_servo
+          level: 0.0%
+
+output:
+  - platform: esp8266_pwm
+    pin: GPIO12
+    frequency: 50Hz
+    id: output_12
+
+servo:
+   - id: my_servo
+     output: output_12
 
