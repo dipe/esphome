@@ -3,9 +3,6 @@ esphome:
   platform: ESP8266
   board: esp01_1m
 
-wifi:
- use_address: waschkueche_steckdosen
-
 packages:
   wifi: !include common/wifi.yaml
   mqtt: !include common/mqtt.yaml
@@ -65,16 +62,10 @@ binary_sensor:
     pin:
       number: GPIO13
     name: Switch1
-    on_press:
-      then:
-        - switch.toggle: relay_1
   - platform: gpio
     pin:
       number: GPIO5
     name: Switch2
-    on_press:
-      then:
-        - switch.toggle: relay_2
 
 switch:
   - platform: gpio
