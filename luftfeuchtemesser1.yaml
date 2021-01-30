@@ -1,0 +1,26 @@
+esphome:
+  name: luftfeuchtemesser1
+  platform: ESP8266
+  board: esp12e
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+i2c:
+  sda: 5
+  scl: 4
+  
+sensor:
+  - platform: bme280
+    address: 0x76
+    temperature:
+      name: "Temperatur"
+      filters:
+      - calibrate_linear:
+        # - Map from sensor -> measured value
+          - 2 -> 0
+          - 22.2 -> 17.4
+    humidity:
+      name: "Luftfeuchtigkeit"
