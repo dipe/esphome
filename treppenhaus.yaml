@@ -1,0 +1,31 @@
+esphome:
+  name: treppenhaus
+  platform: ESP8266
+  board: esp12e
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+output:
+  - platform: gpio
+    pin: GPIO4
+    id: relay1
+
+light:
+  - platform: binary
+    name: "Licht"
+    output: relay1
+    id: light1
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO5
+      inverted: True
+    id: "taster"
+    on_press:
+      then:
+        - light.toggle: light1
+    internal: true
