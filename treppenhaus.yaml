@@ -8,24 +8,15 @@ packages:
   mqtt: !include common/mqtt.yaml
   device_base: !include common/device_base.yaml
 
-output:
+switch:
   - platform: gpio
     pin: GPIO4
-    id: relay1
-
-light:
-  - platform: binary
-    name: "Licht"
-    output: relay1
-    id: light1
+    name: relay1
 
 binary_sensor:
   - platform: gpio
     pin:
       number: GPIO5
-      inverted: True
-    id: "taster"
-    on_press:
-      then:
-        - light.toggle: light1
-    internal: true
+    name: taster1
+    filters:
+      - delayed_on: 10ms
