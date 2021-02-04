@@ -14,13 +14,21 @@ switch:
     restore_mode: ALWAYS_ON
     pin: GPIO15
 
+time:
+  - platform: sntp
+    id: this_time
+
 sensor:
+  - platform: total_daily_energy
+    name: "daily energy"
+    power_id: this_power
   - platform: hlw8012
     cf_pin: GPIO05
     cf1_pin: GPIO13 # not used because it is not available on the 1PM but it is needed to compile
     sel_pin: GPIO14 # not used because it is not available on the 1PM but it is needed to compile
     power:
       name: "power"
+      id: this_power
       unit_of_measurement: W
       accuracy_decimals: 0
       filters:
