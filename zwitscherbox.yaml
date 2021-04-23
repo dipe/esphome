@@ -4,8 +4,11 @@ esphome:
   platform: ESP8266
   on_boot:
     then:
-      - dfplayer.play: 1
       - dfplayer.set_volume: 20
+      - dfplayer.set_eq: JAZZ
+      - dfplayer.play: 1
+      - logger.log: 'Vol 20'
+
 
 packages:
   wifi: !include common/wifi.yaml
@@ -24,9 +27,6 @@ uart:
 
 dfplayer:
   id: df_player
-  on_finished_playback:
-    then:
-      logger.log: 'PLAYBACK FINISHED'
 
 globals:
    - id: playing_stopped
@@ -48,25 +48,24 @@ sensor:
 binary_sensor:
   - platform: gpio
     pin:
-      number: GPIO12
+      number: GPIO13
       inverted: true
       mode: INPUT_PULLUP
     name: "Previous"
     filters:
-      - delayed_on_off: 100ms
+      - delayed_on_off: 50ms
     on_press:
       then:
         - dfplayer.play_previous:
-        - logger.log: 'PREVIOUS'
 
   - platform: gpio
     pin:
-      number: GPIO13
+      number: GPIO12
       inverted: true
       mode: INPUT_PULLUP
     name: "Pause/Play"
     filters:
-      - delayed_on_off: 100ms
+      - delayed_on_off: 50ms
     on_press:
         if:
           condition:
@@ -76,12 +75,10 @@ binary_sensor:
             - lambda: |-
                 id(df_player).start();
                 id(playing_stopped) = false;
-            - logger.log: 'START'
           else:
             - lambda: |-
                 id(df_player).pause();
                 id(playing_stopped) = true;
-            - logger.log: 'PAUSE'
 
   - platform: gpio
     pin:
@@ -90,11 +87,10 @@ binary_sensor:
       mode: INPUT_PULLUP
     name: "Next"
     filters:
-      - delayed_on_off: 100ms
+      - delayed_on_off: 50ms
     on_press:
       then:
         - dfplayer.play_next:
-        - logger.log: 'NEXT'
 
   - platform: gpio
     pin:
@@ -109,4 +105,3 @@ binary_sensor:
           then:
             - lambda: |-
                 id(df_player).next();
-            - logger.log: 'NEXT'
