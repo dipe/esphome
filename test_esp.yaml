@@ -8,24 +8,17 @@ packages:
   mqtt: !include common/mqtt.yaml
   device_base: !include common/device_base.yaml
 
-binary_sensor:
-  - platform: gpio
-    pin:
-      number: GPIO13
-      mode: INPUT_PULLUP
-    name: "Taster13"
-
 switch:
   - platform: template
     name: "servo"
     turn_on_action:
       - servo.write:
           id: my_servo
-          level: -100.0%
+          level: -85.0%
     turn_off_action:
       - servo.write:
           id: my_servo
-          level: 0.0%
+          level: 20.0%
 
 output:
   - platform: esp8266_pwm
@@ -36,4 +29,6 @@ output:
 servo:
    - id: my_servo
      output: output_12
+     transition_length: 2s
+     auto_detach_time: 1s
 
