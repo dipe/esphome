@@ -41,9 +41,14 @@ sensor:
       - calibrate_linear:
 #        # - Map from sensor -> measured value
           - 2 -> 0
-          - 23.4 -> 19.4
+          - 28 -> 21
     humidity:
       name: "humidity"
+      filters:
+      - calibrate_linear:
+#        # - Map from sensor -> measured value
+          - 0 -> 0
+          - 32 -> 51
 
 binary_sensor:
   - platform: gpio
