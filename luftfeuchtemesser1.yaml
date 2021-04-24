@@ -21,6 +21,11 @@ sensor:
       - calibrate_linear:
         # - Map from sensor -> measured value
           - 2 -> 0
-          - 22.2 -> 17.4
+          - 22.8 -> 17.4
     humidity:
       name: "Luftfeuchtigkeit"
+      filters:
+      - calibrate_linear:
+        # - Map from sensor -> measured value
+          - 0 -> 0
+          - 32 -> 48
