@@ -16,14 +16,14 @@ sensor:
   - platform: bme280
     address: 0x76
     temperature:
-      name: "Temperatur"
+      name: "temperature"
       filters:
       - calibrate_linear:
         # - Map from sensor -> measured value
           - 2 -> 0
           - 22.8 -> 17.4
     humidity:
-      name: "Luftfeuchtigkeit"
+      name: "humidity"
       filters:
       - calibrate_linear:
         # - Map from sensor -> measured value

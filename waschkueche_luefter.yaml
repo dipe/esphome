@@ -15,10 +15,6 @@ i2c:
 sensor:
   - platform: bme280
     address: 0x76
-    temperature:
-      name: "Temperatur"
-    humidity:
-      name: "Luftfeuchtigkeit"
 
 switch:
   - platform: gpio

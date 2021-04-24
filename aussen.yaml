@@ -16,30 +16,22 @@ sensor:
   - platform: bme280
     address: 0x76
     temperature:
-      name: "Temperatur"
       id: temperature
-      unit_of_measurement: °C
     pressure:
-      name: "Luftdruck"
       id: pressure
-      unit_of_measurement: °C
     humidity:
-      name: "Relative Luftfeuchtigkeit"
       id: humidity
-      unit_of_measurement: 'rel. %'
   - platform: template
-    name: "Absolute Luftfeuchtigkeit"
+    name: "absolute humidity"
     lambda: |-
       const float mw = 18.01534;    // molar mass of water g/mol
       const float r = 8.31447215;   // Universal gas constant J/mol/K
       return (6.112 * powf(2.718281828, (17.67 * id(temperature).state) /
         (id(temperature).state + 243.5)) * id(humidity).state * mw) /
         ((273.15 + id(temperature).state) * r); // in grams/m^3
-    unit_of_measurement: 'g/m³'
   - platform: template
-    name: "Taupunkt"
+    name: "dew_point"
     lambda: |-
       return (243.5*(log(id(humidity).state/100)+((17.67*id(temperature).state)/
         (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-
         ((17.67*id(temperature).state)/(243.5+id(temperature).state))));
-    unit_of_measurement: °C
