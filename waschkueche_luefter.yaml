@@ -15,6 +15,20 @@ i2c:
 sensor:
   - platform: bme280
     address: 0x76
+    temperature:
+      name: "temperature"
+      # filters:
+      # - calibrate_linear:
+      #   # - Map from sensor -> measured value
+      #     - 2 -> 0
+      #     - 22.8 -> 17.4
+    humidity:
+      name: "humidity"
+      # filters:
+      # - calibrate_linear:
+      #   # - Map from sensor -> measured value
+      #     - 0 -> 0
+      #     - 32 -> 48
 
 switch:
   - platform: gpio

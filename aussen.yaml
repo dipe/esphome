@@ -16,10 +16,13 @@ sensor:
   - platform: bme280
     address: 0x76
     temperature:
+      name: temperature
       id: temperature
     pressure:
+      name: pressure
       id: pressure
     humidity:
+      name: humidity
       id: humidity
   - platform: template
     name: "absolute humidity"
