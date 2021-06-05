@@ -4,11 +4,10 @@ esphome:
   platform: ESP8266
   on_boot:
     then:
+      - logger.log: 'Initialize DF Player'
       - dfplayer.set_volume: 20
       - dfplayer.set_eq: JAZZ
       - dfplayer.play: 1
-      - logger.log: 'Vol 20'
-
 
 packages:
   wifi: !include common/wifi.yaml
@@ -36,20 +35,36 @@ globals:
 sensor:
   - platform: htu21d
     temperature:
+      id: "temperature"
       name: "temperature"
       filters:
       - calibrate_linear:
-#        # - Map from sensor -> measured value
-          - 2 -> 0
-          - 28 -> 21
-    humidity:
-      name: "humidity"
-      filters:
-      - calibrate_linear:
-#        # - Map from sensor -> measured value
+        # - Map from sensor -> measured value
           - 0 -> 0
-          - 32 -> 51
-
+          - 21 -> 19
+    humidity:
+      id: "humidity"
+      name: "humidity"
+#      filters:
+#      - calibrate_linear:
+#        # - Map from sensor -> measured value
+#          - 0 -> 0
+#          - 53 -> 65
+  - platform: template
+    name: "absolute humidity"
+    lambda: |-
+      const float mw = 18.01534;    // molar mass of water g/mol
+      const float r = 8.31447215;   // Universal gas constant J/mol/K
+      return (6.112 * powf(2.718281828, (17.67 * id(temperature).state) /
+        (id(temperature).state + 243.5)) * id(humidity).state * mw) /
+        ((273.15 + id(temperature).state) * r); // in grams/m^3
+  - platform: template
+    name: "dew_point"
+    lambda: |-
+      return (243.5*(log(id(humidity).state/100)+((17.67*id(temperature).state)/
+        (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-
+        ((17.67*id(temperature).state)/(243.5+id(temperature).state))));
+        
 binary_sensor:
   - platform: gpio
     pin:
@@ -72,18 +87,23 @@ binary_sensor:
     filters:
       - delayed_on_off: 50ms
     on_press:
-        if:
-          condition:
-            lambda: |-
-              return id(playing_stopped);
-          then:
-            - lambda: |-
-                id(df_player).start();
-                id(playing_stopped) = false;
-          else:
-            - lambda: |-
-                id(df_player).pause();
-                id(playing_stopped) = true;
+        - if:
+            condition:
+              lambda: |-
+                return id(playing_stopped);
+            then:
+              - dfplayer.set_volume: 20
+              - dfplayer.set_eq: JAZZ
+              - lambda: |-
+                  id(df_player).start();
+                  id(playing_stopped) = false;
+            else:
+              - lambda: |-
+                  id(df_player).pause();
+                  id(playing_stopped) = true;
+        - delay: 300s
+        - lambda: |-
+            id(playing_stopped) = false;
 
   - platform: gpio
     pin:

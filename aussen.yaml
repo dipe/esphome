@@ -17,13 +17,27 @@ sensor:
     address: 0x76
     temperature:
       name: temperature
+      oversampling: 1x
       id: temperature
+#      filters:
+#      - calibrate_linear:
+#        # - Map from sensor -> measured value
+#          - 0 -> 0
+#          - 19 -> 14
+#          - 27.8 -> 24
     pressure:
       name: pressure
       id: pressure
+      oversampling: 1x
     humidity:
       name: humidity
       id: humidity
+      oversampling: 1x
+ #     filters:
+ #     - calibrate_linear:
+ #       # - Map from sensor -> measured value
+ #         - 0 -> 0
+ #         - 37 -> 39
   - platform: template
     name: "absolute humidity"
     lambda: |-

@@ -16,16 +16,35 @@ sensor:
   - platform: bme280
     address: 0x76
     temperature:
+      id: "temperature"
+      oversampling: 1x
       name: "temperature"
       filters:
       - calibrate_linear:
         # - Map from sensor -> measured value
-          - 2 -> 0
-          - 22.8 -> 17.4
+          - 18.5 -> 13.2
+          - 22.4 -> 17
+          - 28.2 -> 23
     humidity:
+      id: "humidity"
       name: "humidity"
+      oversampling: 1x
       filters:
       - calibrate_linear:
         # - Map from sensor -> measured value
           - 0 -> 0
-          - 32 -> 48
+          - 44 -> 58
+  - platform: template
+    name: "absolute humidity"
+    lambda: |-
+      const float mw = 18.01534;    // molar mass of water g/mol
+      const float r = 8.31447215;   // Universal gas constant J/mol/K
+      return (6.112 * powf(2.718281828, (17.67 * id(temperature).state) /
+        (id(temperature).state + 243.5)) * id(humidity).state * mw) /
+        ((273.15 + id(temperature).state) * r); // in grams/m^3
+  - platform: template
+    name: "dew_point"
+    lambda: |-
+      return (243.5*(log(id(humidity).state/100)+((17.67*id(temperature).state)/
+        (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-
+        ((17.67*id(temperature).state)/(243.5+id(temperature).state))));

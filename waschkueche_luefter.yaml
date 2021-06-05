@@ -17,19 +17,39 @@ sensor:
     address: 0x76
     temperature:
       name: "temperature"
-      # filters:
-      # - calibrate_linear:
-      #   # - Map from sensor -> measured value
-      #     - 2 -> 0
-      #     - 22.8 -> 17.4
+      oversampling: 1x
+      id: "temperature"
+      filters:
+      - calibrate_linear:
+        # - Map from sensor -> measured value
+          - 12.9 -> 13.2
+          - 17 -> 17
+          - 24 -> 23
     humidity:
       name: "humidity"
-      # filters:
-      # - calibrate_linear:
-      #   # - Map from sensor -> measured value
-      #     - 0 -> 0
-      #     - 32 -> 48
-
+      id: "humidity"
+      oversampling: 1x
+      filters:
+      - calibrate_linear:
+        # - Map from sensor -> measured value
+          - 39.7 -> 45
+          - 33.9 -> 50
+          - 50 -> 56
+  - platform: template
+    name: "absolute humidity"
+    lambda: |-
+      const float mw = 18.01534;    // molar mass of water g/mol
+      const float r = 8.31447215;   // Universal gas constant J/mol/K
+      return (6.112 * powf(2.718281828, (17.67 * id(temperature).state) /
+        (id(temperature).state + 243.5)) * id(humidity).state * mw) /
+        ((273.15 + id(temperature).state) * r); // in grams/m^3
+  - platform: template
+    name: "dew_point"
+    lambda: |-
+      return (243.5*(log(id(humidity).state/100)+((17.67*id(temperature).state)/
+        (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-
+        ((17.67*id(temperature).state)/(243.5+id(temperature).state))));
+        
 switch:
   - platform: gpio
     pin: GPIO12
