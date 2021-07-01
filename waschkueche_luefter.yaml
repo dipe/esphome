@@ -15,28 +15,29 @@ i2c:
 sensor:
   - platform: bme280
     address: 0x76
+    update_interval: 300s
     temperature:
       name: "temperature"
-      oversampling: 1x
+#      oversampling: 1x
       id: "temperature"
-      filters:
-      - calibrate_linear:
-        # - Map from sensor -> measured value
-          - 12.9 -> 13.2
-          - 17 -> 17
-          - 24 -> 23
+      # filters:
+      # - calibrate_linear:
+      #   # - Map from sensor -> measured value
+      #     - 12.9 -> 13.2
+      #     - 17 -> 17
+      #     - 19.4 -> 17.5
+      #     - 24 -> 22
     humidity:
       name: "humidity"
       id: "humidity"
-      oversampling: 1x
       filters:
       - calibrate_linear:
         # - Map from sensor -> measured value
-          - 39.7 -> 45
-          - 33.9 -> 50
-          - 50 -> 56
+        - 0 -> 0  
+        - 72.7 -> 77.2
   - platform: template
-    name: "absolute humidity"
+    name: "absolute_humidity"
+    update_interval: 300s
     lambda: |-
       const float mw = 18.01534;    // molar mass of water g/mol
       const float r = 8.31447215;   // Universal gas constant J/mol/K
@@ -45,6 +46,7 @@ sensor:
         ((273.15 + id(temperature).state) * r); // in grams/m^3
   - platform: template
     name: "dew_point"
+    update_interval: 300s
     lambda: |-
       return (243.5*(log(id(humidity).state/100)+((17.67*id(temperature).state)/
         (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-

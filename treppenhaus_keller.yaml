@@ -19,4 +19,4 @@ binary_sensor:
       number: GPIO5
     name: button1
     filters:
-      - delayed_on: 10ms
+      - delayed_on_off: 50ms

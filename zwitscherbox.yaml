@@ -5,7 +5,7 @@ esphome:
   on_boot:
     then:
       - logger.log: 'Initialize DF Player'
-      - dfplayer.set_volume: 20
+      - dfplayer.set_volume: 30
       - dfplayer.set_eq: JAZZ
       - dfplayer.play: 1
 
@@ -34,6 +34,7 @@ globals:
 
 sensor:
   - platform: htu21d
+    update_interval: 300s
     temperature:
       id: "temperature"
       name: "temperature"
@@ -42,16 +43,22 @@ sensor:
         # - Map from sensor -> measured value
           - 0 -> 0
           - 21 -> 19
+          - 24.4 -> 22.3
+          - 25.9 -> 24
+          - 26.7 -> 25.6
     humidity:
       id: "humidity"
       name: "humidity"
-#      filters:
-#      - calibrate_linear:
-#        # - Map from sensor -> measured value
-#          - 0 -> 0
-#          - 53 -> 65
+      filters:
+      - calibrate_linear:
+        # - Map from sensor -> measured value
+          - 0 -> 0
+          - 43.5 -> 51.1
+          - 51.3 -> 62.0
+          - 57.3 -> 63.4
   - platform: template
-    name: "absolute humidity"
+    name: "absolute_humidity"
+    update_interval: 300s
     lambda: |-
       const float mw = 18.01534;    // molar mass of water g/mol
       const float r = 8.31447215;   // Universal gas constant J/mol/K
@@ -60,6 +67,7 @@ sensor:
         ((273.15 + id(temperature).state) * r); // in grams/m^3
   - platform: template
     name: "dew_point"
+    update_interval: 300s
     lambda: |-
       return (243.5*(log(id(humidity).state/100)+((17.67*id(temperature).state)/
         (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-
@@ -92,7 +100,7 @@ binary_sensor:
               lambda: |-
                 return id(playing_stopped);
             then:
-              - dfplayer.set_volume: 20
+              - dfplayer.set_volume: 30
               - dfplayer.set_eq: JAZZ
               - lambda: |-
                   id(df_player).start();
