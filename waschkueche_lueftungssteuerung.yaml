@@ -1,0 +1,72 @@
+esphome:
+  name: waschkueche_lueftungssteuerung
+  platform: ESP8266
+  board: esp12e
+  on_boot:
+    then:
+      - logger.log: 'Boot'
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO5
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "lueften"
+    filters:
+      - delayed_on_off: 50ms
+  - platform: gpio
+    pin:
+      number: GPIO2
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "automatik"
+    filters:
+      - delayed_on_off: 50ms
+  - platform: gpio
+    pin:
+      number: GPIO4
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "nicht_lueften"
+    filters:
+      - delayed_on_off: 50ms
+
+switch:
+  - platform: gpio
+    name: "red"
+    pin: GPIO16
+  - platform: gpio
+    name: "yellow"
+    pin: GPIO14
+  - platform: gpio
+    name: "green"
+    pin: GPIO12
+  - platform: template
+    name: "servo"
+    turn_on_action:
+      - servo.write:
+          id: my_servo
+          level: -90.0%
+    turn_off_action:
+      - servo.write:
+          id: my_servo
+          level: 7.0%
+
+output:
+  - platform: esp8266_pwm
+    pin: GPIO13
+    frequency: 50Hz
+    id: output_13
+
+servo:
+   - id: my_servo
+     output: output_13
+     transition_length: 2s
+     auto_detach_time: 0.5s
+

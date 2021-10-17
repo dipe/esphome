@@ -11,7 +11,7 @@ packages:
 i2c:
   sda: 5
   scl: 4
-  
+
 sensor:
   - platform: bme280
     address: 0x76

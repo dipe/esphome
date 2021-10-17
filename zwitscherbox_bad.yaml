@@ -1,5 +1,5 @@
 esphome:
-  name: zwitscherbox
+  name: zwitscherbox_bad
   board: esp12e
   platform: ESP8266
   on_boot:

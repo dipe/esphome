@@ -8,27 +8,71 @@ packages:
   mqtt: !include common/mqtt.yaml
   device_base: !include common/device_base.yaml
 
-switch:
-  - platform: template
-    name: "servo"
-    turn_on_action:
-      - servo.write:
-          id: my_servo
-          level: -85.0%
-    turn_off_action:
-      - servo.write:
-          id: my_servo
-          level: 20.0%
+uart:
+  - rx_pin: GPIO13
+    baud_rate: 9600
+    id: pms
+  
+  - rx_pin: GPIO14
+    tx_pin: GPIO16
+    baud_rate: 9600
+    id: mh
 
-output:
-  - platform: esp8266_pwm
-    pin: GPIO12
-    frequency: 50Hz
-    id: output_12
+i2c:
+  sda: 5
+  scl: 4
 
-servo:
-   - id: my_servo
-     output: output_12
-     transition_length: 2s
-     auto_detach_time: 1s
-
+sensor:
+  - platform: bme280
+    address: 0x76
+#    update_interval: 300s
+    temperature:
+      name: "temperature"
+      id: "temperature"
+      # filters:
+      # - calibrate_linear:
+      #   # - Map from sensor -> measured value
+      #     - 12.9 -> 13.2
+      #     - 17 -> 17
+      #     - 19.4 -> 17.5
+      #     - 24 -> 22
+    humidity:
+      name: "humidity"
+      id: "humidity"
+      # filters:
+      # - calibrate_linear:
+        # - Map from sensor -> measured value
+        # - 0 -> 0  
+        # - 72.7 -> 77.2
+  - platform: pmsx003
+    type: PMSX003
+    uart_id: pms
+    pm_1_0:
+      name: "Particulate Matter <1.0µm Concentration"
+    pm_2_5:
+      name: "Particulate Matter <2.5µm Concentration"
+    pm_10_0:
+      name: "Particulate Matter <10.0µm Concentration"
+  - platform: sgp30
+    eco2:
+      name: "eCO2"
+      accuracy_decimals: 1
+      id: eco2
+    tvoc:
+      name: "TVOC"
+      accuracy_decimals: 1
+      id: tvoc
+    update_interval: 1s
+    # https://esphome.io/components/sensor/sgp30.html#calibrating-baseline
+    # baseline:
+    #   eco2_baseline: 0x92B7
+    #   tvoc_baseline: 0x935A
+    compensation:
+        temperature_source: temperature
+        humidity_source: humidity
+  - platform: mhz19
+    co2:
+      name: "CO2"
+    update_interval: 10s
+    automatic_baseline_calibration: false
+    uart_id: mh
