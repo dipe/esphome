@@ -52,7 +52,7 @@ switch:
     turn_on_action:
       - servo.write:
           id: my_servo
-          level: -90.0%
+          level: -100.0%
     turn_off_action:
       - servo.write:
           id: my_servo
