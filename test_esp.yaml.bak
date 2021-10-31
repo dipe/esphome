@@ -1,5 +1,5 @@
 esphome:
-  name: test-esp
+  name: test_esp
   platform: ESP8266
   board: esp12e
 
@@ -22,32 +22,30 @@ i2c:
   sda: 5
   scl: 4
 
-bme680_bsec:
-    address: 0x77
-
 sensor:
-  - platform: bme680_bsec
+  - platform: htu21d
+#    update_interval: 300s
     temperature:
-      name: "temperature"
       id: "temperature"
-    pressure:
-      name: "pressure"
-      id: "pressure"
+      name: "temperature"
+      # filters:
+      # - calibrate_linear:
+      #   # - Map from sensor -> measured value
+      #     - 0 -> 0
+      #     - 21 -> 19
+      #     - 24.4 -> 22.3
+      #     - 25.9 -> 24
+      #     - 26.7 -> 25.6
     humidity:
-      name: "humidity"
       id: "humidity"
-    iaq:
-      name: "iaq"
-      id: "iaq"
-    co2_equivalent:
-      name: "CO2 Equivalent"
-      id: "co2_equivalent"
-    iaq_accuracy:
-      name: iaq_accuracy
-      id: iaq_accuracy
-    breath_voc_equivalent:
-      name: "Breath VOC Equivalent"
-      id: "breath_voc_equivalent"
+      name: "humidity"
+      # filters:
+      # - calibrate_linear:
+      #   # - Map from sensor -> measured value
+      #     - 0 -> 0
+      #     - 43.5 -> 51.1
+      #     - 51.3 -> 62.0
+      #     - 57.3 -> 63.4
   - platform: template
     name: "absolute_humidity"
     update_interval: 300s
@@ -73,6 +71,23 @@ sensor:
       name: "Particulate Matter <2.5µm Concentration"
     pm_10_0:
       name: "Particulate Matter <10.0µm Concentration"
+  - platform: sgp30
+    eco2:
+      name: "eCO2"
+      accuracy_decimals: 1
+      id: eco2
+    tvoc:
+      name: "TVOC"
+      accuracy_decimals: 1
+      id: tvoc
+    update_interval: 1s
+    # https://esphome.io/components/sensor/sgp30.html#calibrating-baseline
+    # baseline:
+    #   eco2_baseline: 0x92B7
+    #   tvoc_baseline: 0x935A
+    compensation:
+        temperature_source: temperature
+        humidity_source: humidity
   - platform: mhz19
     co2:
       name: "CO2"

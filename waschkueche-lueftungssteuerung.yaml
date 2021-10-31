@@ -52,11 +52,11 @@ switch:
     turn_on_action:
       - servo.write:
           id: my_servo
-          level: -10.0%
+          level: -100.0%
     turn_off_action:
       - servo.write:
           id: my_servo
-          level: 7.0%
+          level: 10.0%
 
 output:
   - platform: esp8266_pwm

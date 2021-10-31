@@ -1,5 +1,5 @@
 esphome:
-  name: waschkueche_wama
+  name: waschkueche-wama
   platform: ESP8266
   board: esp01_1m
 
