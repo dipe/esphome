@@ -4,6 +4,6 @@ wifi:
   ap:
     ssid: "DIPE Fallback Hotspot"
     password: "0qMgbNX4s1pj"
+  domain: ''
 
 captive_portal:
-
