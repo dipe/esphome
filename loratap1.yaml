@@ -1,0 +1,30 @@
+esphome:
+  name: loratap1
+  platform: ESP8266
+  board: esp12e
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO4
+      inverted: true
+    name: "switch1"
+  - platform: gpio
+    pin:
+      number: GPIO12
+      inverted: true
+    name: "button1"
+
+switch:
+  - platform: gpio
+    name: "relay1"
+    pin: GPIO13
+  - platform: gpio
+    name: "led1"
+    inverted: true
+    pin: GPIO16
