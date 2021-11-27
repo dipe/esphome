@@ -8,76 +8,23 @@ packages:
   mqtt: !include common/mqtt.yaml
   device_base: !include common/device_base.yaml
 
-uart:
-  - rx_pin: GPIO13
-    baud_rate: 9600
-    id: pms
-  
-  - rx_pin: GPIO14
-    tx_pin: GPIO16
-    baud_rate: 9600
-    id: mh
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO4
+      inverted: true
+    name: "switch1"
+  - platform: gpio
+    pin:
+      number: GPIO12
+      inverted: true
+    name: "button1"
 
-i2c:
-  sda: 5
-  scl: 4
-
-bme680_bsec:
-    address: 0x77
-
-sensor:
-  - platform: bme680_bsec
-    temperature:
-      name: "temperature"
-      id: "temperature"
-    pressure:
-      name: "pressure"
-      id: "pressure"
-    humidity:
-      name: "humidity"
-      id: "humidity"
-    iaq:
-      name: "iaq"
-      id: "iaq"
-    co2_equivalent:
-      name: "CO2 Equivalent"
-      id: "co2_equivalent"
-    iaq_accuracy:
-      name: iaq_accuracy
-      id: iaq_accuracy
-    breath_voc_equivalent:
-      name: "Breath VOC Equivalent"
-      id: "breath_voc_equivalent"
-  - platform: template
-    name: "absolute_humidity"
-    update_interval: 300s
-    lambda: |-
-      const float mw = 18.01534;    // molar mass of water g/mol
-      const float r = 8.31447215;   // Universal gas constant J/mol/K
-      return (6.112 * powf(2.718281828, (17.67 * id(temperature).state) /
-        (id(temperature).state + 243.5)) * id(humidity).state * mw) /
-        ((273.15 + id(temperature).state) * r); // in grams/m^3
-  - platform: template
-    name: "dew_point"
-    update_interval: 300s
-    lambda: |-
-      return (243.5*(log(id(humidity).state/100)+((17.67*id(temperature).state)/
-        (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-
-        ((17.67*id(temperature).state)/(243.5+id(temperature).state))));
-  - platform: pmsx003
-    type: PMSX003
-    uart_id: pms
-    pm_1_0:
-      name: "Particulate Matter <1.0µm Concentration"
-    pm_2_5:
-      name: "Particulate Matter <2.5µm Concentration"
-    pm_10_0:
-      name: "Particulate Matter <10.0µm Concentration"
-  - platform: mhz19
-    co2:
-      name: "CO2"
-    temperature:
-      name: "mhz19-temperature"
-    update_interval: 10s
-    automatic_baseline_calibration: false
-    uart_id: mh
+switch:
+  - platform: gpio
+    name: "relay1"
+    pin: GPIO13
+  - platform: gpio
+    name: "led1"
+    inverted: true
+    pin: GPIO16
