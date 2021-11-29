@@ -43,12 +43,22 @@ sensor:
     temperature:
       name: "temperature"
       id: "temperature"
+      filters:
+      - calibrate_linear:
+        # - Map from sensor -> measured value
+          - 0 -> 0
+          - 18.9 -> 16.7
     pressure:
       name: "pressure"
       id: "pressure"
     humidity:
       name: "humidity"
       id: "humidity"
+      filters:
+      - calibrate_linear:
+        # - Map from sensor -> measured value
+          - 0 -> 0
+          - 54.4 -> 61.0
     iaq:
       name: "iaq"
       id: "iaq"
