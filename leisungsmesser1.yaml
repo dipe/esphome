@@ -1,6 +1,6 @@
 esphome:
   name: leistungsmesser1
-  platform: ESP8266
+  platform: ESP8266 # Shelly 1PM
   board: esp01_1m
 
 packages:
@@ -15,6 +15,7 @@ time:
 switch:
   - platform: gpio
     name: "relay"
+    restore_mode: ALWAYS_ON
     pin: GPIO15
 
 binary_sensor:

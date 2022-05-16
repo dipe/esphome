@@ -1,0 +1,53 @@
+esphome:
+  name: steckdose1
+  platform: ESP8266
+  board: esp12e
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+i2c:
+  sda: 5
+  scl: 4
+
+switch:
+  - platform: gpio
+    pin: GPIO12
+    name: relais
+
+sensor:
+  - platform: aht10
+    temperature:
+      name: "temperature"
+      id: "temperature"
+      filters:
+      - calibrate_linear:
+        # - Map from sensor -> measured value
+          - 0 -> 0
+          - 20 -> 17
+    humidity:
+      name: "humidity"
+      id: "humidity"
+      # filters:
+      # - calibrate_linear:
+      #   # - Map from sensor -> measured value
+      #   - 0 -> 0  
+      #   - 72.7 -> 77.2
+  - platform: template
+    name: "absolute_humidity"
+    update_interval: 300s
+    lambda: |-
+      const float mw = 18.01534;    // molar mass of water g/mol
+      const float r = 8.31447215;   // Universal gas constant J/mol/K
+      return (6.112 * powf(2.718281828, (17.67 * id(temperature).state) /
+        (id(temperature).state + 243.5)) * id(humidity).state * mw) /
+        ((273.15 + id(temperature).state) * r); // in grams/m^3
+  - platform: template
+    name: "dew_point"
+    update_interval: 300s
+    lambda: |-
+      return (243.5*(log(id(humidity).state/100)+((17.67*id(temperature).state)/
+        (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-
+        ((17.67*id(temperature).state)/(243.5+id(temperature).state))));

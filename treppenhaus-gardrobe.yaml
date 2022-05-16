@@ -15,12 +15,6 @@ switch:
     id: relay1
 
 binary_sensor:
-  # - platform: gpio
-  #   pin:
-  #     number: GPIO4
-  #   name: button1
-  #   filters:
-  #     - delayed_on_off: 10ms
   - platform: gpio
     pin:
       number: GPIO14

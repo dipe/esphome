@@ -1,7 +1,9 @@
 esphome:
-  name: test-esp
+  name: leistungsmesser1
   platform: ESP8266
   board: esp01_1m
+
+use_address: test-esp
 
 packages:
   wifi: !include common/wifi.yaml
@@ -20,6 +22,9 @@ binary_sensor:
       number: GPIO4
 
 sensor:
+  - platform: total_daily_energy
+    name: "daily energy"
+    power_id: this_power
   - platform: hlw8012
     cf_pin: GPIO05
     cf1_pin: GPIO13
