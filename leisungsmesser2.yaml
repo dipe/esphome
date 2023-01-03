@@ -1,0 +1,67 @@
+esphome:
+  name: leistungsmesser2
+  platform: ESP8266 # Shelly 1PM
+  board: esp01_1m
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+time:
+  - platform: sntp
+    id: this_time
+
+switch:
+  - platform: gpio
+    name: "relay"
+    restore_mode: ALWAYS_ON
+    pin: GPIO15
+
+binary_sensor:
+  - platform: gpio
+    name: "button"
+    pin:
+      number: GPIO4
+
+sensor:
+  - platform: total_daily_energy
+    name: "daily energy"
+    power_id: this_power
+  - platform: hlw8012
+    cf_pin: GPIO05
+    cf1_pin: GPIO13
+    sel_pin: GPIO14
+    power:
+      name: "power"
+      id: this_power
+      unit_of_measurement: W
+      accuracy_decimals: 0
+      filters:
+      - calibrate_linear:
+        # - Map from sensor -> measured value
+          - 3.0 -> 0.0
+          - 148.0 -> 26.0
+          - 1355.0 -> 225.0
+          - 3563.0 -> 588.0
+          - 6981.0 -> 1158.0
+    update_interval: 10s
+
+  - platform: ntc
+    sensor: resistance_sensor
+    name: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    calibration:
+      b_constant: 3350
+      reference_resistance: 10kOhm
+      reference_temperature: 298.15K
+  - platform: resistance
+    id: resistance_sensor
+    sensor: source_sensor
+    configuration: DOWNSTREAM
+    resistor: 32kOhm
+  - platform: adc
+    id: source_sensor
+    pin: A0
+    update_interval: 10s
