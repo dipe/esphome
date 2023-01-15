@@ -23,7 +23,7 @@ sensor:
       - calibrate_linear:
         # - Map from sensor -> measured value
           - 18.5 -> 13.2
-          - 22.4 -> 17
+          - 22.4 -> 17.5
           - 26.1 -> 21.8
           - 28.2 -> 22.2
           - 30.0 -> 25.7
