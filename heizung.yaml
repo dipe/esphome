@@ -1,4 +1,4 @@
-esphome:
+substitutions:
   name: heizung # Stromverbtrauch Heizung, Speicher- und Umwälzpumpe
   platform: ESP8266 # Shelly 1PM, Heizungsverteilerdose im Heizungskeller
   board: esp01_1m

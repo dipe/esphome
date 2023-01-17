@@ -1,3 +1,8 @@
+esphome:
+  name: ${name}
+  platform: ${platform}
+  board: ${board}
+
 logger:
 
 ota:

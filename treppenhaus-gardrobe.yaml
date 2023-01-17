@@ -1,4 +1,4 @@
-esphome:
+substitutions:
   name: treppenhaus-gardrobe
   platform: ESP8266 # Shelly 1L Lichtschalter Gardrobe
   board: esp12e

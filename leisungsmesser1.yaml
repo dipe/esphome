@@ -1,12 +1,12 @@
-esphome:
+substitutions:
   name: leistungsmesser1
   platform: ESP8266 # Shelly 1PM
   board: esp01_1m
 
 packages:
+  device_base: !include common/device_base.yaml
   wifi: !include common/wifi.yaml
   mqtt: !include common/mqtt.yaml
-  device_base: !include common/device_base.yaml
 
 time:
   - platform: sntp

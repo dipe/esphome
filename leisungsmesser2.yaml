@@ -1,4 +1,4 @@
-esphome:
+substitutions:
   name: leistungsmesser2
   platform: ESP8266 # Shelly 1PM
   board: esp01_1m

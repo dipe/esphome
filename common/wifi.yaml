@@ -2,8 +2,8 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   ap:
-    ssid: "DIPE Fallback Hotspot"
-    password: "0qMgbNX4s1pj"
+    ssid: ${name}
+    password: !secret ap_password
   domain: ''
 
 captive_portal:

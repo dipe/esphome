@@ -1,5 +1,5 @@
-esphome:
-  name: test_esp
+substitutions:
+  name: test-esp
   platform: ESP8266
   board: esp12e
 

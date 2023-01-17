@@ -1,7 +1,9 @@
-esphome:
-  name: zwitscherbox_bad
+substitutions:
+  name: zwitscherbox-bad
   board: esp12e
   platform: ESP8266
+
+esphome:
   on_boot:
     then:
       - logger.log: 'Initialize DF Player'
