@@ -1,7 +1,7 @@
 substitutions:
   name: treppenhaus-gardrobe
   platform: ESP8266 # Shelly 1L Lichtschalter Gardrobe
-  board: esp12e
+  board: esp01_1m
 
 packages:
   wifi: !include common/wifi.yaml
