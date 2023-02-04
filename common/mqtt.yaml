@@ -1,6 +1,4 @@
 mqtt:
   broker: dipe-pi
-#  username: livingroom
-#  password: MyMQTTPassword
   discovery: false
 
