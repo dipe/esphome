@@ -1,0 +1,131 @@
+substitutions:
+  name: test-esp
+  platform: ESP8266
+  board: esp12e
+  <<: !include common/fingerprint1_secrets.yaml
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+uart:
+  rx_pin: GPIO3
+  tx_pin: GPIO1
+  baud_rate: 57600
+
+logger:
+  baud_rate: 0
+
+mqtt:
+  on_json_message:
+    - topic: ${name}/enroll
+      then:
+        - if:
+            condition:
+              lambda: 'return x["pin"] == ${fingerprint1_enrollment_pin};'
+            then:
+              - fingerprint_grow.aura_led_control:
+                  state: FLASHING
+                  speed: 25
+                  color: BLUE
+                  count: 0
+              - fingerprint_grow.enroll:
+                  finger_id: !lambda 'return x["finger_id"];'
+                  num_scans: !lambda 'return x["num_scans"];'
+    - topic: ${name}/delete
+      then:
+        - fingerprint_grow.delete:
+            finger_id: !lambda 'return x["finger_id"];'
+#  on_message:
+    - topic: ${name}/cancel_enroll
+      then:
+        - fingerprint_grow.cancel_enroll:
+    - topic: ${name}/delete_all
+      then:
+        - fingerprint_grow.delete_all:
+
+sensor:
+  - platform: fingerprint_grow
+    fingerprint_count:
+      name: "fingerprint_count"
+    last_finger_id:
+      name: "last_finger_id"
+    last_confidence:
+      name: "last_confidence"
+    status:
+      name: "status"
+    capacity:
+      name: "capacity"
+    security_level:
+      name: "security_level"
+
+fingerprint_grow:
+  password: ${fingerprint1_password}
+  sensing_pin: GPIO12
+  on_finger_scan_matched:
+    - if:
+        condition:
+          lambda: 'return confidence > 50;'
+        then:
+            - mqtt.publish_json:
+                topic: ${name}/scan_matched
+                payload: |-
+                  root["finger_id"] = finger_id;
+                  root["confidence"] = confidence;
+            - fingerprint_grow.aura_led_control:
+                state: BREATHING
+                speed: 200
+                color: GREEN
+                count: 1
+        else:
+            - fingerprint_grow.aura_led_control:
+                state: FLASHING
+                speed: 25
+                color: RED
+                count: 2
+  on_finger_scan_unmatched:
+    - mqtt.publish:
+        topic: ${name}/scan_unmatched
+        payload: "unmatched"
+    - fingerprint_grow.aura_led_control:
+        state: FLASHING
+        speed: 25
+        color: RED
+        count: 2
+  on_enrollment_scan:
+    - fingerprint_grow.aura_led_control:
+        state: FLASHING
+        speed: 255
+        color: PURPLE
+        count: 1
+    - fingerprint_grow.aura_led_control:
+        state: FLASHING
+        speed: 25
+        color: BLUE
+        count: 0
+    - mqtt.publish_json:
+        topic: ${name}/enrollment_scan
+        payload: |-
+          root["finger_id"] = finger_id;
+          root["scan_num"] = scan_num;
+  on_enrollment_done:
+    - fingerprint_grow.aura_led_control:
+        state: BREATHING
+        speed: 100
+        color: BLUE
+        count: 2
+    - mqtt.publish_json:
+        topic: ${name}/enrollment_done
+        payload: |-
+          root["finger_id"] = finger_id;
+  on_enrollment_failed:
+    - mqtt.publish_json:
+        topic: ${name}/enrollment_failed
+        payload: |-
+          root["finger_id"] = finger_id;
+    - fingerprint_grow.aura_led_control:
+        state: FLASHING
+        speed: 25
+        color: RED
+        count: 4
