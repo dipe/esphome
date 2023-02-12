@@ -16,7 +16,7 @@ binary_sensor:
     name: 'Switch 1'
     id: sensorid1
     filters:
-      - delayed_on_off: 50ms
+      - delayed_on_off: 100ms
   - platform: gpio
     pin:
       number: GPIO14
@@ -24,7 +24,7 @@ binary_sensor:
     name: 'Switch 2'
     id: sensorid2
     filters:
-      - delayed_on_off: 50ms
+      - delayed_on_off: 100ms
   - platform: gpio
     pin:
       number: GPIO13
@@ -32,4 +32,4 @@ binary_sensor:
     name: 'Switch 3'
     id: sensorid3
     filters:
-      - delayed_on_off: 50ms
+      - delayed_on_off: 100ms
