@@ -79,6 +79,9 @@ fingerprint_grow:
                 color: GREEN
                 count: 1
         else:
+            - mqtt.publish:
+                topic: ${name}/scan_unmatched
+                payload: "unmatched"
             - fingerprint_grow.aura_led_control:
                 state: FLASHING
                 speed: 25
