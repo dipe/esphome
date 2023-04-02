@@ -1,98 +1,42 @@
 substitutions:
   name: test-esp
   platform: ESP8266
-  board: esp12e
+  board: esp01_1m
 
 packages:
   wifi: !include common/wifi.yaml
   mqtt: !include common/mqtt.yaml
   device_base: !include common/device_base.yaml
 
-uart:
-  - rx_pin: GPIO13
-    baud_rate: 9600
-    id: pms
-  
-  - rx_pin: GPIO14
-    tx_pin: GPIO16
-    baud_rate: 9600
-    id: mh
-
 i2c:
   sda: 5
   scl: 4
 
-sensor:
-  - platform: htu21d
-#    update_interval: 300s
-    temperature:
-      id: "temperature"
-      name: "temperature"
-      # filters:
-      # - calibrate_linear:
-      #   # - Map from sensor -> measured value
-      #     - 0 -> 0
-      #     - 21 -> 19
-      #     - 24.4 -> 22.3
-      #     - 25.9 -> 24
-      #     - 26.7 -> 25.6
-    humidity:
-      id: "humidity"
-      name: "humidity"
-      # filters:
-      # - calibrate_linear:
-      #   # - Map from sensor -> measured value
-      #     - 0 -> 0
-      #     - 43.5 -> 51.1
-      #     - 51.3 -> 62.0
-      #     - 57.3 -> 63.4
-  - platform: template
-    name: "absolute_humidity"
-    update_interval: 300s
+globals:
+  - id: time
+    type: std::string
+  - id: weather
+    type: std::string
+
+font:
+  - file: 'Roboto-Medium.ttf'
+    id: font1
+    size: 37
+  - file: 'Roboto-Medium.ttf'
+    id: font2
+    size: 20
+
+display:
+  - platform: ssd1306_i2c
+    model: "SH1106 128x64"
     lambda: |-
-      const float mw = 18.01534;    // molar mass of water g/mol
-      const float r = 8.31447215;   // Universal gas constant J/mol/K
-      return (6.112 * powf(2.718281828, (17.67 * id(temperature).state) /
-        (id(temperature).state + 243.5)) * id(humidity).state * mw) /
-        ((273.15 + id(temperature).state) * r); // in grams/m^3
-  - platform: template
-    name: "dew_point"
-    update_interval: 300s
-    lambda: |-
-      return (243.5*(log(id(humidity).state/100)+((17.67*id(temperature).state)/
-        (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-
-        ((17.67*id(temperature).state)/(243.5+id(temperature).state))));
-  - platform: pmsx003
-    type: PMSX003
-    uart_id: pms
-    pm_1_0:
-      name: "Particulate Matter <1.0µm Concentration"
-    pm_2_5:
-      name: "Particulate Matter <2.5µm Concentration"
-    pm_10_0:
-      name: "Particulate Matter <10.0µm Concentration"
-  - platform: sgp30
-    eco2:
-      name: "eCO2"
-      accuracy_decimals: 1
-      id: eco2
-    tvoc:
-      name: "TVOC"
-      accuracy_decimals: 1
-      id: tvoc
-    update_interval: 1s
-    # https://esphome.io/components/sensor/sgp30.html#calibrating-baseline
-    # baseline:
-    #   eco2_baseline: 0x92B7
-    #   tvoc_baseline: 0x935A
-    compensation:
-        temperature_source: temperature
-        humidity_source: humidity
-  - platform: mhz19
-    co2:
-      name: "CO2"
-    temperature:
-      name: "mhz19-temperature"
-    update_interval: 10s
-    automatic_baseline_calibration: false
-    uart_id: mh
+      it.printf(64,  0, id(font1), TextAlign::TOP_CENTER, id(time));
+      it.printf(64, 64, id(font2), TextAlign::BOTTOM_CENTER, id(weather));
+
+mqtt:
+  on_json_message:
+    - topic: ${name}/time
+      then:
+        lambda: |-
+          id(time) = "15:17";
+          id(weather) = "21° Sonne";
