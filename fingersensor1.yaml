@@ -66,7 +66,7 @@ fingerprint_grow:
   on_finger_scan_matched:
     - if:
         condition:
-          lambda: 'return confidence > 50;'
+          lambda: 'return confidence > 0;' # no extra confidence
         then:
             - mqtt.publish_json:
                 topic: ${name}/scan_matched
