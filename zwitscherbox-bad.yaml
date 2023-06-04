@@ -138,5 +138,6 @@ binary_sensor:
             lambda: |-
               return !id(playing_stopped) and !id(df_player).is_playing();
           then:
+            - delay: 10s
             - lambda: |-
                 id(df_player).next();
