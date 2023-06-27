@@ -17,7 +17,6 @@ binary_sensor:
   - platform: gpio
     pin:
       number: GPIO5
-      inverted: true
     name: button1
     filters:
       - delayed_on_off: 10ms
