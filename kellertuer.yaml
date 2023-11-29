@@ -1,6 +1,6 @@
 substitutions:
   name: kellertuer
-  platform: ESP8266
+  platform: ESP8266 # Shelly 2.5
   board: esp01_1m
 
 packages:
