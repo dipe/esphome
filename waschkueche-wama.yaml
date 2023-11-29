@@ -7,11 +7,10 @@ packages:
   wifi: !include common/wifi.yaml
   mqtt: !include common/mqtt.yaml
   device_base: !include common/device_base.yaml
-
+   
 switch:
   - platform: gpio
     name: "switch15"
-    restore_mode: ALWAYS_ON
     pin: GPIO15
 
 time:
@@ -65,4 +64,4 @@ binary_sensor:
     name: "button"
     pin:
       number: GPIO4
-      inverted: true
+
