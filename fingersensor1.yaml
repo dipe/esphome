@@ -61,7 +61,7 @@ sensor:
       name: "security_level"
 
 fingerprint_grow:
-  password: ${fingerprint1_password}
+#  password: ${fingerprint1_password}
   sensing_pin: GPIO12
   on_finger_scan_matched:
     - if:
