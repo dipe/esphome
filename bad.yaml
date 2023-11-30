@@ -15,24 +15,24 @@ i2c:
 sensor:
   - platform: ade7953
     voltage:
-      name: Voltage
+      id: voltage
     current_a:
-      name: Current_2
+      id: current_2
       filters:
         - multiply: 0.1
     current_b:
-      name: Current_1
+      id: current_1
       filters:
         - multiply: 0.88
     active_power_a:
-      name: Power_2
+      id: power_2
     active_power_b:
-      name: Power_1
+      id: power_1
     update_interval: 60s
 
   - platform: ntc
     sensor: temp_resistance_reading
-    name: Temperature
+    id: temperature
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     calibration:
@@ -56,23 +56,31 @@ status_led:
 binary_sensor:
   - platform: gpio
     pin: GPIO16
-    name: "ade7953 IRQ pin"
+    id: "ade7953_irq_pin"
     internal: true
   - platform: gpio
     pin:
       number: GPIO13
-    name: Switch1
+    id: button1
+    name: button1
+    on_press:
+      then:
+        - switch.toggle: relay1
   - platform: gpio
     pin:
       number: GPIO5
-    name: Switch2
+    id: button2
+    name: button2
+    on_press:
+      then:
+        - switch.toggle: relay2
 
 switch:
   - platform: gpio
-    id: relay_1
-    name: Relay1
+    id: relay1
+    name: relay1
     pin: GPIO4
   - platform: gpio
-    id: relay_2
-    name: Relay2
+    id: relay2
+    name: relay2
     pin: GPIO15
