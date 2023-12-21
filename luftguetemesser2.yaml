@@ -1,0 +1,128 @@
+substitutions:
+  name: luftguetemesser2
+  platform: ESP32
+  board: nodemcu-32s
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+logger:
+  baud_rate: 0
+
+uart:
+  - rx_pin: GPIO32
+    tx_pin: GPIO33
+    baud_rate: 9600
+    id: pms
+  - rx_pin: GPIO3
+    tx_pin: GPIO1
+    baud_rate: 9600
+    id: mh
+
+i2c:
+  sda: 14
+  scl: 25
+
+output:
+  - platform: ledc
+    pin: GPIO21
+    id: rtttl
+
+bme680_bsec:
+    address: 0x77
+    iaq_mode: static
+    temperature_offset: 2
+    sample_rate: lp
+    state_save_interval: 6h
+
+switch:
+  - platform: gpio
+    name: "red"
+    pin: GPIO19
+  - platform: gpio
+    name: "yellow"
+    pin: GPIO18
+  - platform: gpio
+    name: "green"
+    pin: GPIO16
+
+sensor:
+  - platform: bme680_bsec
+    temperature:
+      name: "temperature"
+      id: "temperature"
+#      filters:
+#      - calibrate_linear:
+#        # - Map from sensor -> measured value
+#          - 0 -> 0
+#          - 18.9 -> 16.7
+    pressure:
+      name: "pressure"
+      id: "pressure"
+    humidity:
+      name: "humidity"
+      id: "humidity"
+#      filters:
+#      - calibrate_linear:
+#        # - Map from sensor -> measured value
+#          - 0 -> 0
+#          - 54.4 -> 61.0
+    iaq:
+      name: "iaq"
+      id: "iaq"
+    co2_equivalent:
+      name: "CO2 Equivalent"
+      id: "co2_equivalent"
+    iaq_accuracy:
+      name: iaq_accuracy
+      id: iaq_accuracy
+    breath_voc_equivalent:
+      name: "Breath VOC Equivalent"
+      id: "breath_voc_equivalent"
+    gas_resistance:
+      name: "Gas Resistance"
+      id: "gas_resistance"
+  - platform: template
+    name: "absolute_humidity"
+    update_interval: 300s
+    lambda: |-
+      const float mw = 18.01534;    // molar mass of water g/mol
+      const float r = 8.31447215;   // Universal gas constant J/mol/K
+      return (6.112 * powf(2.718281828, (17.67 * id(temperature).state) /
+        (id(temperature).state + 243.5)) * id(humidity).state * mw) /
+        ((273.15 + id(temperature).state) * r); // in grams/m^3
+  - platform: template
+    name: "dew_point"
+    update_interval: 300s
+    lambda: |-
+      return (243.5*(log(id(humidity).state/100)+((17.67*id(temperature).state)/
+        (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-
+        ((17.67*id(temperature).state)/(243.5+id(temperature).state))));
+  - platform: pmsx003
+    type: PMS5003ST
+    uart_id: pms
+    formaldehyde:
+      name: formaldehyde
+    pm_1_0:
+      name: "Particulate Matter <1.0µm Concentration"
+    pm_2_5:
+      name: "Particulate Matter <2.5µm Concentration"
+    pm_10_0:
+      name: "Particulate Matter <10.0µm Concentration"
+    update_interval: 120s
+  - platform: mhz19
+    co2:
+      name: "CO2"
+    temperature:
+      name: "mhz19-temperature"
+    update_interval: 60s
+    automatic_baseline_calibration: false
+    uart_id: mh
+
+text_sensor:
+  - platform: bme680_bsec
+    iaq_accuracy:
+      # IAQ accuracy as a text value of Stabilizing, Uncertain, Calibrating, Calibrated
+      name: "BME680 IAQ Accuracy"
