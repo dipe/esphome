@@ -11,9 +11,14 @@ packages:
 logger:
   baud_rate: 0
 
+globals:
+   - id: alert_paused
+     type: bool
+     initial_value: 'false'
+
 uart:
-  - rx_pin: GPIO32
-    tx_pin: GPIO33
+  - rx_pin: GPIO33
+    tx_pin: GPIO32
     baud_rate: 9600
     id: pms
   - rx_pin: GPIO3
@@ -25,11 +30,6 @@ i2c:
   sda: 14
   scl: 25
 
-output:
-  - platform: ledc
-    pin: GPIO21
-    id: rtttl
-
 bme680_bsec:
     address: 0x77
     iaq_mode: static
@@ -39,14 +39,56 @@ bme680_bsec:
 
 switch:
   - platform: gpio
-    name: "red"
+    name: green
+    id: green
     pin: GPIO19
   - platform: gpio
-    name: "yellow"
+    name: yellow
+    id: yellow
     pin: GPIO18
   - platform: gpio
-    name: "green"
+    name: red
+    id: red
     pin: GPIO16
+  - platform: gpio
+    id: buzzer
+    name: buzzer
+    pin: GPIO21
+    inverted: true
+  - platform: gpio
+    name: mhz19_hd
+    id: mhz19_hd
+    pin: GPIO27
+    inverted: true
+
+mqtt:
+  on_message:
+    - topic: ${name}/test-alert
+      then:
+        - script.execute: red_alert
+        - delay: 1s
+        - script.execute: yellow_alert
+        - delay: 1s
+        - script.execute: no_alert
+    - topic: ${name}/calibrate
+      then:
+        - logger.log: "start calibration"
+        - switch.turn_on: mhz19_hd
+        - delay: 8s
+        - switch.turn_off: mhz19_hd
+        - logger.log: "calibration completed"
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO5
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    name: button1
+    filters:
+      - delayed_on_off: 50ms
 
 sensor:
   - platform: bme680_bsec
@@ -86,7 +128,6 @@ sensor:
       id: "gas_resistance"
   - platform: template
     name: "absolute_humidity"
-    update_interval: 300s
     lambda: |-
       const float mw = 18.01534;    // molar mass of water g/mol
       const float r = 8.31447215;   // Universal gas constant J/mol/K
@@ -95,26 +136,27 @@ sensor:
         ((273.15 + id(temperature).state) * r); // in grams/m^3
   - platform: template
     name: "dew_point"
-    update_interval: 300s
     lambda: |-
       return (243.5*(log(id(humidity).state/100)+((17.67*id(temperature).state)/
         (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-
         ((17.67*id(temperature).state)/(243.5+id(temperature).state))));
   - platform: pmsx003
-    type: PMS5003ST
+    type: PMSX003
     uart_id: pms
-    formaldehyde:
-      name: formaldehyde
     pm_1_0:
       name: "Particulate Matter <1.0µm Concentration"
+      id: pm_1_0
     pm_2_5:
       name: "Particulate Matter <2.5µm Concentration"
+      id: pm_2_5  
     pm_10_0:
       name: "Particulate Matter <10.0µm Concentration"
+      id: pm_10_0
     update_interval: 120s
   - platform: mhz19
     co2:
       name: "CO2"
+      id: co2
     temperature:
       name: "mhz19-temperature"
     update_interval: 60s
@@ -124,5 +166,49 @@ sensor:
 text_sensor:
   - platform: bme680_bsec
     iaq_accuracy:
-      # IAQ accuracy as a text value of Stabilizing, Uncertain, Calibrating, Calibrated
       name: "BME680 IAQ Accuracy"
+  - platform: template
+    name: alert
+    lambda: !lambda |-
+      if (id(breath_voc_equivalent).state < 3.0 && id(co2).state < 700.0 && id(pm_1_0).state < 25.0 && id(pm_2_5).state < 25.0 && id(pm_10_0).state < 25.0) {    
+        id(red).turn_off();
+        id(yellow).turn_off();
+        id(green).turn_on();
+        id(no_alert).execute();
+        return {"green"};
+      } else {
+        if (id(breath_voc_equivalent).state > 10.0 || id(co2).state > 2000.0 || id(pm_1_0).state > 200.0 || id(pm_2_5).state > 200.0 || id(pm_10_0).state >200.0) {    
+          id(red).turn_on();
+          id(yellow).turn_off();
+          id(green).turn_off();
+          id(red_alert).execute();
+          return {"green"};
+        } else {
+          id(red).turn_off();
+          id(yellow).turn_on();
+          id(green).turn_off();
+          id(yellow_alert).execute();
+          return {"yellow"};         
+        }
+      }
+
+script:
+  - id: red_alert
+    then:
+      - switch.turn_on: buzzer
+  - id: yellow_alert
+    then:
+      - switch.turn_on: buzzer
+      - delay: 100ms
+      - switch.turn_off: buzzer
+      - delay: 500ms
+      - switch.turn_on: buzzer
+      - delay: 100ms
+      - switch.turn_off: buzzer
+      - delay: 500ms
+      - switch.turn_on: buzzer
+      - delay: 100ms
+      - switch.turn_off: buzzer
+  - id: no_alert
+    then:
+      - switch.turn_off: buzzer
