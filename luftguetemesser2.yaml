@@ -11,11 +11,6 @@ packages:
 logger:
   baud_rate: 0
 
-globals:
-   - id: alert_paused
-     type: bool
-     initial_value: 'false'
-
 uart:
   - rx_pin: GPIO33
     tx_pin: GPIO32
@@ -29,6 +24,40 @@ uart:
 i2c:
   sda: 14
   scl: 25
+
+globals:
+   - id: leds_enabled
+     type: bool
+     initial_value: 'true'
+   - id: buzzer_enabled
+     type: bool
+     initial_value: 'true'
+
+mqtt:
+  on_message:
+    - topic: ${name}/test_alert
+      then:
+        - script.execute: red_alert
+        - delay: 1s
+        - script.execute: yellow_alert
+        - delay: 1s
+        - script.execute: no_alert
+    - topic: ${name}/calibrate
+      then:
+        - logger.log: "start calibration"
+        - switch.turn_on: mhz19_hd
+        - delay: 8s
+        - switch.turn_off: mhz19_hd
+        - logger.log: "calibration completed"
+  on_json_message:
+    - topic: ${name}/ensable_leds
+      then:
+        - lambda: |-
+            id(leds_enabled) = x["state"];
+    - topic: ${name}/ensable_buzzer
+      then:
+        - lambda: |-
+            id(buzzer_enabled) = x["state"];
 
 bme680_bsec:
     address: 0x77
@@ -60,23 +89,6 @@ switch:
     id: mhz19_hd
     pin: GPIO27
     inverted: true
-
-mqtt:
-  on_message:
-    - topic: ${name}/test-alert
-      then:
-        - script.execute: red_alert
-        - delay: 1s
-        - script.execute: yellow_alert
-        - delay: 1s
-        - script.execute: no_alert
-    - topic: ${name}/calibrate
-      then:
-        - logger.log: "start calibration"
-        - switch.turn_on: mhz19_hd
-        - delay: 8s
-        - switch.turn_off: mhz19_hd
-        - logger.log: "calibration completed"
 
 binary_sensor:
   - platform: gpio
@@ -168,25 +180,56 @@ text_sensor:
     iaq_accuracy:
       name: "BME680 IAQ Accuracy"
   - platform: template
-    name: alert
+    name: alert_voc
+    id: alert_voc
     lambda: !lambda |-
-      if (id(breath_voc_equivalent).state < 3.0 && id(co2).state < 700.0 && id(pm_1_0).state < 25.0 && id(pm_2_5).state < 25.0 && id(pm_10_0).state < 25.0) {    
-        id(red).turn_off();
-        id(yellow).turn_off();
-        id(green).turn_on();
+      if (id(breath_voc_equivalent).state < 3.0) {    
+        return {"green"};
+      } else {
+        if (id(breath_voc_equivalent).state > 10.0) {    
+          return {"red"};
+        } else {
+          return {"yellow"};         
+        }
+      }
+  - platform: template
+    name: alert_pm
+    id: alert_pm
+    lambda: !lambda |-
+      if (id(pm_1_0).state < 25.0 && id(pm_2_5).state < 25.0 && id(pm_10_0).state < 25.0) {    
+        return {"green"};
+      } else {
+        if (id(pm_1_0).state > 200.0 || id(pm_2_5).state > 200.0 || id(pm_10_0).state >200.0) {    
+          return {"red"};
+        } else {
+          return {"yellow"};         
+        }
+      }
+  - platform: template
+    name: alert_co2
+    id: alert_co2
+    lambda: !lambda |-
+      if (id(co2).state < 700.0) {    
+        return {"green"};
+      } else {
+        if (id(co2).state > 2000.0) {    
+          return {"red"};
+        } else {
+          return {"yellow"};         
+        }
+      }
+  - platform: template
+    name: alert
+    id: alert
+    lambda: !lambda |-
+      if (id(alert_voc).state == "green" && id(alert_co2).state == "green" && id(alert_pm).state == "green") {    
         id(no_alert).execute();
         return {"green"};
       } else {
-        if (id(breath_voc_equivalent).state > 10.0 || id(co2).state > 2000.0 || id(pm_1_0).state > 200.0 || id(pm_2_5).state > 200.0 || id(pm_10_0).state >200.0) {    
-          id(red).turn_on();
-          id(yellow).turn_off();
-          id(green).turn_off();
+        if (id(alert_voc).state == "red" && id(alert_co2).state == "red" && id(alert_pm).state == "red") {
           id(red_alert).execute();
           return {"green"};
         } else {
-          id(red).turn_off();
-          id(yellow).turn_on();
-          id(green).turn_off();
           id(yellow_alert).execute();
           return {"yellow"};         
         }
@@ -195,20 +238,57 @@ text_sensor:
 script:
   - id: red_alert
     then:
-      - switch.turn_on: buzzer
+      - switch.turn_off: red
+      - switch.turn_off: yellow
+      - switch.turn_off: green
+      - if:
+          condition:
+            lambda: |-
+              return id(leds_enabled);
+          then:
+            - switch.turn_on: red
+      - if:
+          condition:
+            lambda: |-
+              return id(buzzer_enabled);
+          then:
+            - switch.turn_on: buzzer
   - id: yellow_alert
     then:
-      - switch.turn_on: buzzer
-      - delay: 100ms
-      - switch.turn_off: buzzer
-      - delay: 500ms
-      - switch.turn_on: buzzer
-      - delay: 100ms
-      - switch.turn_off: buzzer
-      - delay: 500ms
-      - switch.turn_on: buzzer
-      - delay: 100ms
-      - switch.turn_off: buzzer
+      - switch.turn_off: red
+      - switch.turn_off: yellow
+      - switch.turn_off: green
+      - if:
+          condition:
+            lambda: |-
+              return id(leds_enabled);
+          then:
+            - switch.turn_on: yellow
+      - if:
+          condition:
+            lambda: |-
+              return id(buzzer_enabled);
+          then:
+            - switch.turn_on: buzzer
+            - delay: 100ms
+            - switch.turn_off: buzzer
+            - delay: 500ms
+            - switch.turn_on: buzzer
+            - delay: 100ms
+            - switch.turn_off: buzzer
+            - delay: 500ms
+            - switch.turn_on: buzzer
+            - delay: 100ms
+            - switch.turn_off: buzzer
   - id: no_alert
     then:
+      - switch.turn_off: red
+      - switch.turn_off: yellow
+      - switch.turn_off: green
+      - if:
+          condition:
+            lambda: |-
+              return id(leds_enabled);
+          then:
+            - switch.turn_on: green
       - switch.turn_off: buzzer

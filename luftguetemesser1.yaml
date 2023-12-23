@@ -24,6 +24,33 @@ i2c:
   sda: 14
   scl: 25
 
+globals:
+   - id: leds_enabled
+     type: bool
+     initial_value: 'false'
+
+mqtt:
+  on_message:
+    - topic: ${name}/test_alert
+      then:
+        - script.execute: red_alert
+        - delay: 1s
+        - script.execute: yellow_alert
+        - delay: 1s
+        - script.execute: no_alert
+    # - topic: ${name}/calibrate
+    #   then:
+    #     - logger.log: "start calibration"
+    #     - switch.turn_on: mhz19_hd
+    #     - delay: 8s
+    #     - switch.turn_off: mhz19_hd
+    #     - logger.log: "calibration completed"
+  on_json_message:
+    - topic: ${name}/ensable_leds
+      then:
+        - lambda: |-
+            id(leds_enabled) = x["state"];
+
 bme680_bsec:
     address: 0x77
     iaq_mode: static
@@ -33,13 +60,16 @@ bme680_bsec:
 
 switch:
   - platform: gpio
-    name: "red"
+    name: red
+    id: red
     pin: GPIO19
   - platform: gpio
-    name: "yellow"
+    name: yellow
+    id: yellow
     pin: GPIO18
   - platform: gpio
-    name: "green"
+    name: green
+    id: green
     pin: GPIO16
 
 sensor:
@@ -99,15 +129,20 @@ sensor:
     uart_id: pms
     formaldehyde:
       name: formaldehyde
+      id: formaldehyde
     pm_1_0:
       name: "Particulate Matter <1.0µm Concentration"
+      id: pm_1_0
     pm_2_5:
       name: "Particulate Matter <2.5µm Concentration"
+      id: pm_2_5
     pm_10_0:
       name: "Particulate Matter <10.0µm Concentration"
+      id: pm_10_0
   - platform: mhz19
     co2:
       name: "CO2"
+      id: co2
     temperature:
       name: "mhz19-temperature"
     update_interval: 60s
@@ -117,5 +152,107 @@ sensor:
 text_sensor:
   - platform: bme680_bsec
     iaq_accuracy:
-      # IAQ accuracy as a text value of Stabilizing, Uncertain, Calibrating, Calibrated
       name: "BME680 IAQ Accuracy"
+  - platform: template
+    name: alert_voc
+    id: alert_voc
+    lambda: !lambda |-
+      if (id(breath_voc_equivalent).state < 3.0) {    
+        return {"green"};
+      } else {
+        if (id(breath_voc_equivalent).state > 10.0) {    
+          return {"red"};
+        } else {
+          return {"yellow"};         
+        }
+      }
+  - platform: template
+    name: alert_pm
+    id: alert_pm
+    lambda: !lambda |-
+      if (id(pm_1_0).state < 25.0 && id(pm_2_5).state < 25.0 && id(pm_10_0).state < 25.0) {    
+        return {"green"};
+      } else {
+        if (id(pm_1_0).state > 200.0 || id(pm_2_5).state > 200.0 || id(pm_10_0).state >200.0) {    
+          return {"red"};
+        } else {
+          return {"yellow"};         
+        }
+      }
+  - platform: template
+    name: alert_co2
+    id: alert_co2
+    lambda: !lambda |-
+      if (id(co2).state < 700.0) {    
+        return {"green"};
+      } else {
+        if (id(co2).state > 2000.0) {    
+          return {"red"};
+        } else {
+          return {"yellow"};         
+        }
+      }
+  - platform: template
+    name: alert_formaldehyde
+    id: alert_formaldehyde
+    lambda: !lambda |-
+      if (id(formaldehyde).state < 30.0) {    
+        return {"green"};
+      } else {
+        if (id(formaldehyde).state > 124.0) {    
+          return {"green"};
+        } else {
+          return {"yellow"};         
+        }
+      }
+  - platform: template
+    name: alert
+    id: alert
+    lambda: !lambda |-
+      if (id(alert_voc).state == "green" && id(alert_co2).state == "green" && id(alert_pm).state == "green" && id(alert_formaldehyde).state == "green") {    
+        id(no_alert).execute();
+        return {"green"};
+      } else {
+        if (id(alert_voc).state == "red" && id(alert_co2).state == "red" && id(alert_pm).state == "red" && id(alert_formaldehyde).state == "red") {
+          id(red_alert).execute();
+          return {"green"};
+        } else {
+          id(yellow_alert).execute();
+          return {"yellow"};         
+        }
+      }
+
+script:
+  - id: red_alert
+    then:
+      - switch.turn_off: red
+      - switch.turn_off: yellow
+      - switch.turn_off: green
+      - if:
+          condition:
+            lambda: |-
+              return id(leds_enabled);
+          then:
+            - switch.turn_on: red
+  - id: yellow_alert
+    then:
+      - switch.turn_off: red
+      - switch.turn_off: yellow
+      - switch.turn_off: green
+      - if:
+          condition:
+            lambda: |-
+              return id(leds_enabled);
+          then:
+            - switch.turn_on: yellow
+  - id: no_alert
+    then:
+      - switch.turn_off: red
+      - switch.turn_off: yellow
+      - switch.turn_off: green
+      - if:
+          condition:
+            lambda: |-
+              return id(leds_enabled);
+          then:
+            - switch.turn_on: green
