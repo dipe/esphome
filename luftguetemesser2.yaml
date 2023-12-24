@@ -37,11 +37,7 @@ mqtt:
   on_message:
     - topic: ${name}/test_alert
       then:
-        - script.execute: red_alert
-        - delay: 1s
-        - script.execute: yellow_alert
-        - delay: 1s
-        - script.execute: no_alert
+        - script.execute: test_alert
     - topic: ${name}/calibrate
       then:
         - logger.log: "start calibration"
@@ -49,15 +45,18 @@ mqtt:
         - delay: 8s
         - switch.turn_off: mhz19_hd
         - logger.log: "calibration completed"
+        - script.execute: test_alert
   on_json_message:
-    - topic: ${name}/ensable_leds
+    - topic: ${name}/enable_leds
       then:
         - lambda: |-
             id(leds_enabled) = x["state"];
-    - topic: ${name}/ensable_buzzer
+        - script.execute: test_alert
+    - topic: ${name}/enable_buzzer
       then:
         - lambda: |-
             id(buzzer_enabled) = x["state"];
+        - script.execute: test_alert
 
 bme680_bsec:
     address: 0x77
@@ -164,7 +163,7 @@ sensor:
     pm_10_0:
       name: "Particulate Matter <10.0µm Concentration"
       id: pm_10_0
-    update_interval: 120s
+#    update_interval: 120s
   - platform: mhz19
     co2:
       name: "CO2"
@@ -220,7 +219,6 @@ text_sensor:
       }
   - platform: template
     name: alert
-    id: alert
     lambda: !lambda |-
       if (id(alert_voc).state == "green" && id(alert_co2).state == "green" && id(alert_pm).state == "green") {    
         id(no_alert).execute();
@@ -236,6 +234,9 @@ text_sensor:
       }
 
 script:
+  - id: test_alert
+    then:
+      - script.execute: red_alert
   - id: red_alert
     then:
       - switch.turn_off: red
@@ -253,6 +254,8 @@ script:
               return id(buzzer_enabled);
           then:
             - switch.turn_on: buzzer
+            - delay: 1s
+            - switch.turn_off: buzzer
   - id: yellow_alert
     then:
       - switch.turn_off: red

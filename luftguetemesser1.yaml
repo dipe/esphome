@@ -33,11 +33,7 @@ mqtt:
   on_message:
     - topic: ${name}/test_alert
       then:
-        - script.execute: red_alert
-        - delay: 1s
-        - script.execute: yellow_alert
-        - delay: 1s
-        - script.execute: no_alert
+        - script.execute: test_alert
     # - topic: ${name}/calibrate
     #   then:
     #     - logger.log: "start calibration"
@@ -46,10 +42,11 @@ mqtt:
     #     - switch.turn_off: mhz19_hd
     #     - logger.log: "calibration completed"
   on_json_message:
-    - topic: ${name}/ensable_leds
+    - topic: ${name}/enable_leds
       then:
         - lambda: |-
             id(leds_enabled) = x["state"];
+        - script.execute: test_alert
 
 bme680_bsec:
     address: 0x77
@@ -223,6 +220,13 @@ text_sensor:
       }
 
 script:
+  - id: test_alert
+    then:
+      - script.execute: red_alert
+      - delay: 1s
+      - script.execute: yellow_alert
+      - delay: 1s
+      - script.execute: no_alert
   - id: red_alert
     then:
       - switch.turn_off: red
