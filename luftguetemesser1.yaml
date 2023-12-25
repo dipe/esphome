@@ -11,6 +11,20 @@ packages:
 logger:
   baud_rate: 0
 
+esphome:
+  on_boot:
+    then:
+      - switch.turn_on: buzzer
+      - delay: 100ms
+      - switch.turn_off: buzzer
+      - switch.turn_on: red
+      - switch.turn_on: yellow
+      - switch.turn_on: green
+      - delay: 1s
+      - switch.turn_off: red
+      - switch.turn_off: yellow
+      - switch.turn_off: green
+
 uart:
   - rx_pin: GPIO33
     tx_pin: GPIO32
@@ -33,28 +47,21 @@ globals:
      type: bool
      initial_value: 'true'
 
-mqtt:
-  on_message:
-    - topic: ${name}/test_alert
-      then:
-        - script.execute: test_alert
-  on_json_message:
-    - topic: ${name}/enable_leds
-      then:
-        - lambda: |-
-            id(leds_enabled) = x["state"];
-        - script.execute: test_alert
-    - topic: ${name}/enable_buzzer
-      then:
-        - lambda: |-
-            id(buzzer_enabled) = x["state"];
-        - script.execute: test_alert
-
 bme680_bsec:
     address: 0x77
     temperature_offset: 2.5
 
 switch:
+  - platform: template
+    name: enable_leds
+    id: enable_leds
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+  - platform: template
+    name: enable_buzzer
+    id: enable_buzzer
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
   - platform: gpio
     name: green
     id: green
@@ -224,14 +231,12 @@ script:
       - switch.turn_off: green
       - if:
           condition:
-            lambda: |-
-              return id(leds_enabled);
+            switch.is_on: enable_leds
           then:
             - switch.turn_on: red
       - if:
           condition:
-            lambda: |-
-              return id(buzzer_enabled);
+            switch.is_on: enable_buzzer
           then:
             - switch.turn_on: buzzer
             - delay: 1s
@@ -243,14 +248,12 @@ script:
       - switch.turn_off: green
       - if:
           condition:
-            lambda: |-
-              return id(leds_enabled);
+            switch.is_on: enable_leds
           then:
             - switch.turn_on: yellow
       - if:
           condition:
-            lambda: |-
-              return id(buzzer_enabled);
+            switch.is_on: enable_buzzer
           then:
             - switch.turn_on: buzzer
             - delay: 100ms
@@ -266,8 +269,7 @@ script:
       - switch.turn_off: green
       - if:
           condition:
-            lambda: |-
-              return id(leds_enabled);
+            switch.is_on: enable_leds
           then:
             - switch.turn_on: green
       - switch.turn_off: buzzer

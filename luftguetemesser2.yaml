@@ -11,6 +11,17 @@ packages:
 logger:
   baud_rate: 0
 
+esphome:
+  on_boot:
+    then:
+      - switch.turn_on: red
+      - switch.turn_on: yellow
+      - switch.turn_on: green
+      - delay: 1s
+      - switch.turn_off: red
+      - switch.turn_off: yellow
+      - switch.turn_off: green
+
 uart:
   - rx_pin: GPIO32
     tx_pin: GPIO33
@@ -25,28 +36,16 @@ i2c:
   sda: 14
   scl: 25
 
-globals:
-   - id: leds_enabled
-     type: bool
-     initial_value: 'false'
-
-mqtt:
-  on_message:
-    - topic: ${name}/test_alert
-      then:
-        - script.execute: test_alert
-  on_json_message:
-    - topic: ${name}/enable_leds
-      then:
-        - lambda: |-
-            id(leds_enabled) = x["state"];
-        - script.execute: test_alert
-
 bme680_bsec:
     address: 0x77
     temperature_offset: 2.5
 
 switch:
+  - platform: template
+    name: enable_leds
+    id: enable_leds
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
   - platform: gpio
     name: red
     id: red
@@ -192,9 +191,9 @@ text_sensor:
         id(no_alert).execute();
         return {"green"};
       } else {
-        if (id(alert_voc).state == "red" && id(alert_co2).state == "red" && id(alert_pm).state == "red" && id(alert_formaldehyde).state == "red") {
+        if (id(alert_voc).state == "red" || id(alert_co2).state == "red" || id(alert_pm).state == "red" || id(alert_formaldehyde).state == "red") {
           id(red_alert).execute();
-          return {"green"};
+          return {"red"};
         } else {
           id(yellow_alert).execute();
           return {"yellow"};         
@@ -202,13 +201,6 @@ text_sensor:
       }
 
 script:
-  - id: test_alert
-    then:
-      - script.execute: red_alert
-      - delay: 1s
-      - script.execute: yellow_alert
-      - delay: 1s
-      - script.execute: no_alert
   - id: red_alert
     then:
       - switch.turn_off: red
@@ -216,8 +208,7 @@ script:
       - switch.turn_off: green
       - if:
           condition:
-            lambda: |-
-              return id(leds_enabled);
+            switch.is_on: enable_leds
           then:
             - switch.turn_on: red
   - id: yellow_alert
@@ -227,8 +218,7 @@ script:
       - switch.turn_off: green
       - if:
           condition:
-            lambda: |-
-              return id(leds_enabled);
+            switch.is_on: enable_leds
           then:
             - switch.turn_on: yellow
   - id: no_alert
@@ -238,7 +228,6 @@ script:
       - switch.turn_off: green
       - if:
           condition:
-            lambda: |-
-              return id(leds_enabled);
+            switch.is_on: enable_leds
           then:
             - switch.turn_on: green
