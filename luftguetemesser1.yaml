@@ -12,7 +12,8 @@ logger:
   baud_rate: 0
 
 uart:
-  - rx_pin: GPIO32
+  - rx_pin: GPIO33
+    tx_pin: GPIO32
     baud_rate: 9600
     id: pms
   - rx_pin: GPIO3
@@ -27,69 +28,80 @@ i2c:
 globals:
    - id: leds_enabled
      type: bool
-     initial_value: 'false'
+     initial_value: 'true'
+   - id: buzzer_enabled
+     type: bool
+     initial_value: 'true'
 
 mqtt:
   on_message:
     - topic: ${name}/test_alert
       then:
         - script.execute: test_alert
-    # - topic: ${name}/calibrate
-    #   then:
-    #     - logger.log: "start calibration"
-    #     - switch.turn_on: mhz19_hd
-    #     - delay: 8s
-    #     - switch.turn_off: mhz19_hd
-    #     - logger.log: "calibration completed"
   on_json_message:
     - topic: ${name}/enable_leds
       then:
         - lambda: |-
             id(leds_enabled) = x["state"];
         - script.execute: test_alert
+    - topic: ${name}/enable_buzzer
+      then:
+        - lambda: |-
+            id(buzzer_enabled) = x["state"];
+        - script.execute: test_alert
 
 bme680_bsec:
     address: 0x77
-    iaq_mode: static
-    temperature_offset: 2
-    sample_rate: lp
-    state_save_interval: 6h
+    temperature_offset: 2.5
 
 switch:
   - platform: gpio
-    name: red
-    id: red
+    name: green
+    id: green
     pin: GPIO19
   - platform: gpio
     name: yellow
     id: yellow
     pin: GPIO18
   - platform: gpio
-    name: green
-    id: green
+    name: red
+    id: red
     pin: GPIO16
+  - platform: gpio
+    id: buzzer
+    name: buzzer
+    pin: GPIO21
+    inverted: true
+# unused see mhz19.abc_enable 
+#  - platform: gpio
+#    name: mhz19_hd
+#    id: mhz19_hd
+#    pin: GPIO27
+#    inverted: true
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO5
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    name: button1
+    filters:
+      - delayed_on_off: 50ms
 
 sensor:
   - platform: bme680_bsec
     temperature:
       name: "temperature"
       id: "temperature"
-#      filters:
-#      - calibrate_linear:
-#        # - Map from sensor -> measured value
-#          - 0 -> 0
-#          - 18.9 -> 16.7
     pressure:
       name: "pressure"
       id: "pressure"
     humidity:
       name: "humidity"
       id: "humidity"
-#      filters:
-#      - calibrate_linear:
-#        # - Map from sensor -> measured value
-#          - 0 -> 0
-#          - 54.4 -> 61.0
     iaq:
       name: "iaq"
       id: "iaq"
@@ -107,7 +119,6 @@ sensor:
       id: "gas_resistance"
   - platform: template
     name: "absolute_humidity"
-    update_interval: 300s
     lambda: |-
       const float mw = 18.01534;    // molar mass of water g/mol
       const float r = 8.31447215;   // Universal gas constant J/mol/K
@@ -116,26 +127,23 @@ sensor:
         ((273.15 + id(temperature).state) * r); // in grams/m^3
   - platform: template
     name: "dew_point"
-    update_interval: 300s
     lambda: |-
       return (243.5*(log(id(humidity).state/100)+((17.67*id(temperature).state)/
         (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-
         ((17.67*id(temperature).state)/(243.5+id(temperature).state))));
   - platform: pmsx003
-    type: PMS5003ST
+    type: PMSX003
     uart_id: pms
-    formaldehyde:
-      name: formaldehyde
-      id: formaldehyde
     pm_1_0:
       name: "Particulate Matter <1.0µm Concentration"
       id: pm_1_0
     pm_2_5:
       name: "Particulate Matter <2.5µm Concentration"
-      id: pm_2_5
+      id: pm_2_5  
     pm_10_0:
       name: "Particulate Matter <10.0µm Concentration"
       id: pm_10_0
+    update_interval: 120s
   - platform: mhz19
     co2:
       name: "CO2"
@@ -180,7 +188,7 @@ text_sensor:
     name: alert_co2
     id: alert_co2
     lambda: !lambda |-
-      if (id(co2).state < 700.0) {    
+      if (id(co2).state < 1000.0) {    
         return {"green"};
       } else {
         if (id(co2).state > 2000.0) {    
@@ -190,29 +198,15 @@ text_sensor:
         }
       }
   - platform: template
-    name: alert_formaldehyde
-    id: alert_formaldehyde
-    lambda: !lambda |-
-      if (id(formaldehyde).state < 30.0) {    
-        return {"green"};
-      } else {
-        if (id(formaldehyde).state > 124.0) {    
-          return {"green"};
-        } else {
-          return {"yellow"};         
-        }
-      }
-  - platform: template
     name: alert
-    id: alert
     lambda: !lambda |-
-      if (id(alert_voc).state == "green" && id(alert_co2).state == "green" && id(alert_pm).state == "green" && id(alert_formaldehyde).state == "green") {    
+      if (id(alert_voc).state == "green" && id(alert_co2).state == "green" && id(alert_pm).state == "green") {    
         id(no_alert).execute();
         return {"green"};
       } else {
-        if (id(alert_voc).state == "red" && id(alert_co2).state == "red" && id(alert_pm).state == "red" && id(alert_formaldehyde).state == "red") {
+        if (id(alert_voc).state == "red" || id(alert_co2).state == "red" || id(alert_pm).state == "red") {
           id(red_alert).execute();
-          return {"green"};
+          return {"red"};
         } else {
           id(yellow_alert).execute();
           return {"yellow"};         
@@ -223,10 +217,6 @@ script:
   - id: test_alert
     then:
       - script.execute: red_alert
-      - delay: 1s
-      - script.execute: yellow_alert
-      - delay: 1s
-      - script.execute: no_alert
   - id: red_alert
     then:
       - switch.turn_off: red
@@ -238,6 +228,14 @@ script:
               return id(leds_enabled);
           then:
             - switch.turn_on: red
+      - if:
+          condition:
+            lambda: |-
+              return id(buzzer_enabled);
+          then:
+            - switch.turn_on: buzzer
+            - delay: 1s
+            - switch.turn_off: buzzer
   - id: yellow_alert
     then:
       - switch.turn_off: red
@@ -249,6 +247,18 @@ script:
               return id(leds_enabled);
           then:
             - switch.turn_on: yellow
+      - if:
+          condition:
+            lambda: |-
+              return id(buzzer_enabled);
+          then:
+            - switch.turn_on: buzzer
+            - delay: 100ms
+            - switch.turn_off: buzzer
+            - delay: 200ms
+            - switch.turn_on: buzzer
+            - delay: 100ms
+            - switch.turn_off: buzzer
   - id: no_alert
     then:
       - switch.turn_off: red
@@ -260,3 +270,4 @@ script:
               return id(leds_enabled);
           then:
             - switch.turn_on: green
+      - switch.turn_off: buzzer
