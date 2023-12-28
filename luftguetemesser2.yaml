@@ -179,7 +179,7 @@ text_sensor:
         return {"green"};
       } else {
         if (id(formaldehyde).state > 124.0) {    
-          return {"green"};
+          return {"red"};
         } else {
           return {"yellow"};         
         }
