@@ -79,7 +79,7 @@ switch:
   - platform: gpio
     id: buzzer
     name: buzzer
-    pin: GPIO21
+    pin: GPIO04
     inverted: true
 # unused see mhz19.abc_enable 
 #  - platform: gpio
@@ -257,10 +257,6 @@ script:
           condition:
             switch.is_on: enable_buzzer
           then:
-            - switch.turn_on: buzzer
-            - delay: 100ms
-            - switch.turn_off: buzzer
-            - delay: 200ms
             - switch.turn_on: buzzer
             - delay: 100ms
             - switch.turn_off: buzzer
