@@ -8,35 +8,47 @@ packages:
   mqtt: !include common/mqtt.yaml
   device_base: !include common/device_base.yaml
 
-i2c:
-  sda: 5
-  scl: 4
+light:
+  - platform: rgb
+    name: "Living Room Lights"
+    red: r
+    green: g
+    blue: b
 
-globals:
-  - id: time
-    type: std::string
-  - id: weather
-    type: std::string
+rtttl:
+  output: rtttl_out
+  on_finished_playback:
+    - logger.log: 'Song ended!'
 
-font:
-  - file: 'Roboto-Medium.ttf'
-    id: font1
-    size: 37
-  - file: 'Roboto-Medium.ttf'
-    id: font2
-    size: 20
+esphome:
+  on_boot:
+    then:
+      - rtttl.play: 'star_wars:d=16,o=5,b=100:4e,4e,4e,8c,p,g,4e,8c,p,g,4e,4p,4b,4b,4b,8c6,p,g,4d#,8c,p,g,4e,8p'
 
-display:
-  - platform: ssd1306_i2c
-    model: "SH1106 128x64"
-    lambda: |-
-      it.printf(64,  0, id(font1), TextAlign::TOP_CENTER, id(time));
-      it.printf(64, 64, id(font2), TextAlign::BOTTOM_CENTER, id(weather));
+output:
+  - platform: esp8266_pwm
+    id: r
+    pin: 5
+    max_power: 80%
+  - platform: esp8266_pwm
+    id: g
+    pin: 4
+    max_power: 80%
+  - platform: esp8266_pwm
+    id: b
+    pin: 16
+    max_power: 80%
+  - platform: esp8266_pwm
+    pin: 12
+    id: rtttl_out
 
-mqtt:
-  on_json_message:
-    - topic: ${name}/time
-      then:
-        lambda: |-
-          id(time) = "15:17";
-          id(weather) = "21° Sonne";
+#  - platform: ledc
+#    pin: 12
+#    id: rtttl_out
+#    inverted: True
+#  - output.ledc.set_frequency:
+#      id: rtttl_out
+#      frequency: "1000Hz"
+#  - output.set_level:
+#      id: rtttl_out
+#      level: "50%"

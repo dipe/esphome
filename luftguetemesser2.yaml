@@ -39,6 +39,7 @@ i2c:
 bme680_bsec:
     address: 0x77
     temperature_offset: 2.5
+    id: bme680_id1
 
 switch:
   - platform: template
