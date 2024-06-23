@@ -6,6 +6,7 @@ esphome:
 logger:
 
 ota:
+  platform: esphome
 
 sensor:
   - platform: uptime

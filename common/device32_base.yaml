@@ -1,0 +1,16 @@
+esphome:
+  name: ${name}
+
+esp32:
+  board: ${board}
+
+logger:
+
+ota:
+  platform: esphome
+
+sensor:
+  - platform: uptime
+    name: uptime
+  - platform: wifi_signal
+    name: WiFi Signal

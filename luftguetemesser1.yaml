@@ -50,6 +50,8 @@ globals:
 bme680_bsec:
     address: 0x77
     temperature_offset: 2.5
+#    iaq_mode: mobile
+    id: bme680_id1
 
 switch:
   - platform: template
@@ -81,12 +83,6 @@ switch:
     name: buzzer
     pin: GPIO04
     inverted: true
-# unused see mhz19.abc_enable 
-#  - platform: gpio
-#    name: mhz19_hd
-#    id: mhz19_hd
-#    pin: GPIO27
-#    inverted: true
 
 binary_sensor:
   - platform: gpio
@@ -99,6 +95,10 @@ binary_sensor:
     name: button1
     filters:
       - delayed_on_off: 50ms
+    on_press:
+      then:
+        - mhz19.calibrate_zero: mhz19_id
+        - logger.log: calibrate zero mhz19 done
 
 sensor:
   - platform: bme680_bsec
@@ -154,6 +154,7 @@ sensor:
       id: pm_10_0
     update_interval: 120s
   - platform: mhz19
+    id: mhz19_id
     co2:
       name: "CO2"
       id: co2
