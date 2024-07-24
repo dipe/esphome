@@ -50,7 +50,6 @@ globals:
 bme680_bsec:
     address: 0x77
     temperature_offset: 2.5
-#    iaq_mode: mobile
     id: bme680_id1
 
 switch:
@@ -59,13 +58,11 @@ switch:
     id: enable_leds
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
-    restore_state: true
   - platform: template
     name: enable_buzzer
     id: enable_buzzer
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
-    restore_state: true
   - platform: gpio
     name: green
     id: green
@@ -111,6 +108,11 @@ sensor:
     humidity:
       name: "humidity"
       id: "humidity"
+      filters:
+      - calibrate_linear:
+        # - Map from sensor -> measured value
+          - 0 -> 0
+          - 68.4 -> 61.7
     iaq:
       name: "iaq"
       id: "iaq"
