@@ -13,28 +13,25 @@ i2c:
   scl: 4
 
 sensor:
-  - platform: bme280
+  - platform: bme280_i2c
     address: 0x76
     update_interval: 300s
     temperature:
       name: "temperature"
-#      oversampling: 1x
       id: "temperature"
-      # filters:
-      # - calibrate_linear:
-      #   # - Map from sensor -> measured value
-      #     - 12.9 -> 13.2
-      #     - 17 -> 17
-      #     - 19.4 -> 17.5
-      #     - 24 -> 22
+      filters:
+        - calibrate_linear:
+          # - Map from sensor -> measured value
+          - 0 -> 0
+          - 21.5 -> 22.0
     humidity:
       name: "humidity"
       id: "humidity"
       filters:
-      - calibrate_linear:
-        # - Map from sensor -> measured value
-        - 0 -> 0  
-        - 72.7 -> 77.2
+        - calibrate_linear:
+          # - Map from sensor -> measured value
+          - 0 -> 0  
+          - 72.7 -> 77.2
   - platform: template
     name: "absolute_humidity"
     update_interval: 300s

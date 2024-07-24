@@ -13,7 +13,7 @@ i2c:
   scl: 4
   
 sensor:
-  - platform: bme280
+  - platform: bme280_i2c
     address: 0x76
     update_interval: 300s
     temperature:
@@ -34,6 +34,7 @@ sensor:
       - calibrate_linear:
         # - Map from sensor -> measured value
           - 0 -> 0
+          - 57 -> 60
           - 31.9 -> 50.2
           - 37.7 -> 63.4
           - 46.9 -> 65.6
