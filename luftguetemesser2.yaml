@@ -47,7 +47,6 @@ switch:
     id: enable_leds
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
-    restore_state: true
   - platform: gpio
     name: red
     id: red
