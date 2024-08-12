@@ -13,12 +13,12 @@ i2c:
   scl: 4
 
 sensor:
-  - platform: bme280
+  - platform: bme280_i2c
     address: 0x76
 #    update_interval: 300s
     temperature:
       name: "temperature1"
-  - platform: bme280
+  - platform: bme280_i2c
     address: 0x77
 #    update_interval: 300s
     temperature:
