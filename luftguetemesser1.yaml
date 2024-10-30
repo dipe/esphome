@@ -112,7 +112,7 @@ sensor:
       - calibrate_linear:
         # - Map from sensor -> measured value
           - 0 -> 0
-          - 68.4 -> 61.7
+          - 64.5 -> 63.0
     iaq:
       name: "iaq"
       id: "iaq"
