@@ -58,7 +58,7 @@ switch:
     turn_off_action:
       - servo.write:
           id: my_servo
-          level: 10.0%
+          level: 3.0%
 
 output:
   - platform: esp8266_pwm
@@ -69,6 +69,6 @@ output:
 servo:
    - id: my_servo
      output: output_13
-     transition_length: 2s
+     transition_length: 5s
      auto_detach_time: 0.5s
 
