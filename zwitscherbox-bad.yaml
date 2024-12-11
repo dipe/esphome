@@ -30,9 +30,23 @@ dfplayer:
   id: df_player
 
 globals:
-   - id: playing_stopped
-     type: bool
-     initial_value: 'false'
+  - id: playing_stopped
+    type: bool
+    initial_value: 'false'
+
+mqtt:
+  on_json_message:
+    - topic: ${name}/autoplay_on_motion
+      then:
+        - if:
+            condition:
+              lambda: 'return x["enabled"];'
+            then:
+              - lambda: |-
+                  id(playing_stopped) = false;
+            else:
+              - lambda: |-
+                  id(playing_stopped) = true;
 
 sensor:
   - platform: htu21d
@@ -111,9 +125,6 @@ binary_sensor:
               - lambda: |-
                   id(df_player).pause();
                   id(playing_stopped) = true;
-        - delay: 300s
-        - lambda: |-
-            id(playing_stopped) = false;
 
   - platform: gpio
     pin:
@@ -138,6 +149,6 @@ binary_sensor:
             lambda: |-
               return !id(playing_stopped) and !id(df_player).is_playing();
           then:
-            - delay: 10s
             - lambda: |-
                 id(df_player).next();
+
