@@ -69,11 +69,17 @@ binary_sensor:
       number: GPIO5
     id: button1
     name: button1
+    on_press:
+      then:
+        - switch.toggle: relay1
   - platform: gpio
     pin:
       number: GPIO13
     id: button2
     name: button2
+    on_press:
+      then:
+        - switch.toggle: relay2
 
 switch:
   - platform: gpio
