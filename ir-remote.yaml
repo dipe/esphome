@@ -1,0 +1,31 @@
+substitutions:
+  name: ir-remote
+  board: esp01_1m
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+switch:
+  - platform: gpio
+    pin: GPIO5
+    name: receiver
+
+remote_receiver:
+  pin:
+    number: GPIO4
+    inverted: true
+  dump: pronto
+
+remote_transmitter:
+  pin: GPIO16
+  carrier_duty_percent: 50%
+
+mqtt:
+  on_json_message:
+    - topic: ${name}/send
+      then:
+        - remote_transmitter.transmit_pronto:
+            data: !lambda 'return x["data"];'
+
