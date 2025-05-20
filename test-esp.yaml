@@ -1,6 +1,5 @@
 substitutions:
   name: test-esp
-  platform: ESP8266
   board: esp01_1m
 
 packages:
@@ -8,47 +7,43 @@ packages:
   mqtt: !include common/mqtt.yaml
   device_base: !include common/device_base.yaml
 
-light:
-  - platform: rgb
-    name: "Living Room Lights"
-    red: r
-    green: g
-    blue: b
+matrix_keypad:
+  id: keypad
+  rows:
+    - pin: GPIO16
+    - pin: GPIO14
+    - pin: GPIO13
+    - pin: GPIO12
+  columns:
+    - pin: GPIO05
+    - pin: GPIO04
+    - pin: GPIO02
+  keys: "123456789*0#"
+  has_diodes: false
+#  on_key:
+#    - lambda: ESP_LOGI("KEY", "key %d pressed", x);
 
-rtttl:
-  output: rtttl_out
-  on_finished_playback:
-    - logger.log: 'Song ended!'
-
-esphome:
-  on_boot:
-    then:
-      - rtttl.play: 'star_wars:d=16,o=5,b=100:4e,4e,4e,8c,p,g,4e,8c,p,g,4e,4p,4b,4b,4b,8c6,p,g,4d#,8c,p,g,4e,8p'
-
-output:
-  - platform: esp8266_pwm
-    id: r
-    pin: 5
-    max_power: 80%
-  - platform: esp8266_pwm
-    id: g
-    pin: 4
-    max_power: 80%
-  - platform: esp8266_pwm
-    id: b
-    pin: 16
-    max_power: 80%
-  - platform: esp8266_pwm
-    pin: 12
-    id: rtttl_out
-
-#  - platform: ledc
-#    pin: 12
-#    id: rtttl_out
-#    inverted: True
-#  - output.ledc.set_frequency:
-#      id: rtttl_out
-#      frequency: "1000Hz"
-#  - output.set_level:
-#      id: rtttl_out
-#      level: "50%"
+# Example configuration entry
+key_collector:
+  - id: pincode
+    source_id: keypad
+#    min_length: 4
+    max_length: 20
+    end_keys: "#"
+#    end_key_required: true
+#    back_keys: "*"
+    clear_keys: "*"
+    allowed_keys: "0123456789"
+    timeout: 5s
+    on_progress:
+      - logger.log:
+          format: "input progress: '%s', started by '%c'"
+          args: [ 'x.c_str()', "(start == 0 ? '~' : start)" ]
+    on_result:
+      - logger.log:
+          format: "input result: '%s', started by '%c', ended by '%c'"
+          args: [ 'x.c_str()', "(start == 0 ? '~' : start)", "(end == 0 ? '~' : end)" ]
+    on_timeout:
+      - logger.log:
+          format: "input timeout: '%s', started by '%c'"
+          args: [ 'x.c_str()', "(start == 0 ? '~' : start)" ]

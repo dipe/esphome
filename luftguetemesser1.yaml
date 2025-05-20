@@ -6,7 +6,7 @@ substitutions:
 packages:
   wifi: !include common/wifi.yaml
   mqtt: !include common/mqtt.yaml
-  device_base: !include common/device_base.yaml
+  device_base: !include common/device32_base.yaml
 
 logger:
   baud_rate: 0
