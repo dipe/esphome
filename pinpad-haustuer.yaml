@@ -1,0 +1,115 @@
+substitutions:
+  name: pinpad-haustuer
+  platform: ESP32
+  board: nodemcu-32s
+
+packages: 
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device32_base.yaml
+
+matrix_keypad:
+  id: keypad
+  rows:
+    - pin: GPIO32
+    - pin: GPIO33
+    - pin: GPIO16
+    - pin: GPIO17
+  columns:
+    - pin: GPIO25
+    - pin: GPIO26
+    - pin: GPIO27
+  keys: "123456789*0#"
+  has_diodes: false
+
+key_collector:
+  - id: pincode
+    source_id: keypad
+#    min_length: 4
+    max_length: 20
+    end_keys: "#"
+    end_key_required: true
+#    back_keys: "*"
+    clear_keys: "*"
+    allowed_keys: "0123456789"
+    timeout: 5s
+    on_progress:
+      - output.turn_on: buzzer
+      - delay: 10ms
+      - output.turn_off: buzzer
+    on_result:
+      - mqtt.publish:
+          topic: ${name}/pin
+          payload: !lambda 'return x;'
+    on_timeout:
+      - output.turn_on: buzzer
+      - delay: 10ms
+      - output.turn_off: buzzer
+      - delay: 10ms
+      - output.turn_on: buzzer
+      - delay: 10ms
+      - output.turn_off: buzzer
+      - delay: 10ms
+      - output.turn_on: buzzer
+      - delay: 10ms
+      - output.turn_off: buzzer
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO4
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    name: button1
+    filters:
+      - delayed_on_off: 50ms
+  - platform: gpio
+    pin:
+      number: GPIO5
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    name: button2
+    filters:
+      - delayed_on_off: 50ms
+
+output:
+  - platform: gpio
+    id: buzzer
+    pin: GPIO14
+    inverted: true
+
+switch:
+  - platform: gpio
+    pin: GPIO18
+    id: relay1
+    inverted: true
+  - platform: gpio
+    id: relay2
+    pin: GPIO19
+    inverted: true
+
+mqtt:
+  on_message:
+    - topic: ${name}/beep
+      then:
+        - output.turn_on: buzzer
+        - delay: 50ms
+        - output.turn_off: buzzer
+    - topic: ${name}/beep2
+      then:
+        - output.turn_on: buzzer
+        - delay: 50ms
+        - output.turn_off: buzzer
+        - delay: 200ms
+        - output.turn_on: buzzer
+        - delay: 50ms
+        - output.turn_off: buzzer
+    - topic: ${name}/beeeep
+      then:
+        - output.turn_on: buzzer
+        - delay: 1000ms
+        - output.turn_off: buzzer
