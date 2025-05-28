@@ -1,7 +1,7 @@
 substitutions:
   name: pinpad-haustuer
   platform: ESP32
-  board: nodemcu-32s
+  board: wemos_d1_mini32
 
 packages: 
   wifi: !include common/wifi.yaml
@@ -11,14 +11,14 @@ packages:
 matrix_keypad:
   id: keypad
   rows:
-    - pin: GPIO32
-    - pin: GPIO33
-    - pin: GPIO16
-    - pin: GPIO17
-  columns:
     - pin: GPIO25
-    - pin: GPIO26
-    - pin: GPIO27
+    - pin: GPIO22
+    - pin: GPIO32
+    - pin: GPIO21
+  columns:
+    - pin: GPIO17
+    - pin: GPIO16
+    - pin: GPIO02
   keys: "123456789*0#"
   has_diodes: false
 
@@ -57,7 +57,7 @@ key_collector:
 binary_sensor:
   - platform: gpio
     pin:
-      number: GPIO4
+      number: GPIO5
       mode:
         input: true
         pullup: true
@@ -67,7 +67,7 @@ binary_sensor:
       - delayed_on_off: 50ms
   - platform: gpio
     pin:
-      number: GPIO5
+      number: GPIO23
       mode:
         input: true
         pullup: true
@@ -79,18 +79,15 @@ binary_sensor:
 output:
   - platform: gpio
     id: buzzer
-    pin: GPIO14
-    inverted: true
+    pin: GPIO26
 
 switch:
   - platform: gpio
     pin: GPIO18
-    id: relay1
-    inverted: true
+    name: relay1
   - platform: gpio
-    id: relay2
+    name: relay2
     pin: GPIO19
-    inverted: true
 
 mqtt:
   on_message:
@@ -107,6 +104,11 @@ mqtt:
         - delay: 200ms
         - output.turn_on: buzzer
         - delay: 50ms
+        - output.turn_off: buzzer
+    - topic: ${name}/beeep
+      then:
+        - output.turn_on: buzzer
+        - delay: 200ms
         - output.turn_off: buzzer
     - topic: ${name}/beeeep
       then:
