@@ -1,0 +1,85 @@
+substitutions:
+  name: pinpad-kellertuer
+  board: esp01_1m
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+matrix_keypad:
+  id: keypad
+  rows:
+    - pin: GPIO00
+    - pin: GPIO12
+    - pin: GPIO13
+    - pin: GPIO14
+  columns:
+    - pin: GPIO04
+    - pin: GPIO05
+    - pin: GPIO02
+  keys: "123456789*0#"
+  has_diodes: false
+
+key_collector:
+  - id: pincode
+    source_id: keypad
+    max_length: 20
+    end_keys: "#"
+    end_key_required: true
+    clear_keys: "*"
+    allowed_keys: "0123456789"
+    timeout: 5s
+    on_progress:
+      - output.turn_on: buzzer
+      - delay: 40ms
+      - output.turn_off: buzzer
+    on_result:
+      - mqtt.publish:
+          topic: ${name}/pin
+          payload: !lambda 'return x;'
+    on_timeout:
+      - output.turn_on: buzzer
+      - delay: 40ms
+      - output.turn_off: buzzer
+      - delay: 40ms
+      - output.turn_on: buzzer
+      - delay: 40ms
+      - output.turn_off: buzzer
+      - delay: 40ms
+      - output.turn_on: buzzer
+      - delay: 40ms
+      - output.turn_off: buzzer
+
+output:
+  - platform: gpio
+    id: buzzer
+    pin: GPIO16
+    inverted: true
+
+mqtt:
+  on_message:
+    - topic: ${name}/beep
+      then:
+        - output.turn_on: buzzer
+        - delay: 80ms
+        - output.turn_off: buzzer
+    - topic: ${name}/beep2
+      then:
+        - output.turn_on: buzzer
+        - delay: 80ms
+        - output.turn_off: buzzer
+        - delay: 200ms
+        - output.turn_on: buzzer
+        - delay: 80ms
+        - output.turn_off: buzzer
+    - topic: ${name}/beeep
+      then:
+        - output.turn_on: buzzer
+        - delay: 200ms
+        - output.turn_off: buzzer
+    - topic: ${name}/beeeep
+      then:
+        - output.turn_on: buzzer
+        - delay: 1000ms
+        - output.turn_off: buzzer
