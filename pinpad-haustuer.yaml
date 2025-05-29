@@ -25,11 +25,9 @@ matrix_keypad:
 key_collector:
   - id: pincode
     source_id: keypad
-#    min_length: 4
     max_length: 20
     end_keys: "#"
     end_key_required: true
-#    back_keys: "*"
     clear_keys: "*"
     allowed_keys: "0123456789"
     timeout: 5s
