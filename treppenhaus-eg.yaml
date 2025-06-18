@@ -1,7 +1,7 @@
 substitutions:
   name: treppenhaus-eg # Einbauort: Lichtschalter Kellerabgang (untere Dose)
-  platform: ESP8266
-  board: esp12e
+  platform: ESP8266 # shelly i3
+  board: esp01_1m
 
 packages:
   wifi: !include common/wifi.yaml
@@ -12,7 +12,24 @@ binary_sensor:
   - platform: gpio
     pin:
       number: GPIO12
-      mode: INPUT_PULLUP
-      inverted: true
-    name: "taster"
-
+      mode: INPUT
+    name: 'Switch 3'
+    id: sensorid1
+    filters:
+      - delayed_on_off: 50ms
+  - platform: gpio
+    pin:
+      number: GPIO13
+      mode: INPUT
+    name: 'Switch 2'
+    id: sensorid2
+    filters:
+      - delayed_on_off: 50ms
+  - platform: gpio
+    pin:
+      number: GPIO14
+      mode: INPUT
+    name: 'Switch 1'
+    id: sensorid3
+    filters:
+      - delayed_on_off: 50ms
