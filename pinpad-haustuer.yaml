@@ -52,6 +52,12 @@ key_collector:
       - delay: 10ms
       - output.turn_off: buzzer
 
+globals:
+  - id: count1
+    type: int
+  - id: count2
+    type: int
+
 binary_sensor:
   - platform: gpio
     pin:
@@ -60,9 +66,22 @@ binary_sensor:
         input: true
         pullup: true
       inverted: true
-    name: button1
-    filters:
-      - delayed_on_off: 50ms
+    id: button1
+    name: "button1"
+    on_press:
+      then:
+        - lambda: 'id(count1) = 0;'
+        - while:
+            condition:
+              and:
+                - binary_sensor.is_on: button1
+                - lambda: 'return id(count1) < 3;'
+            then:
+                - switch.turn_on: relay1
+                - delay: 200ms
+                - switch.turn_off: relay1
+                - lambda: 'id(count1) = id(count1) + 1;'
+                - delay: 800ms
   - platform: gpio
     pin:
       number: GPIO23
@@ -70,9 +89,22 @@ binary_sensor:
         input: true
         pullup: true
       inverted: true
+    id: button2
     name: button2
-    filters:
-      - delayed_on_off: 50ms
+    on_press:
+      then:
+        - lambda: 'id(count2) = 0;'
+        - while:
+            condition:
+              and:
+                - binary_sensor.is_on: button2
+                - lambda: 'return id(count1) < 3;'
+            then:
+                - switch.turn_on: relay2
+                - delay: 200ms
+                - switch.turn_off: relay2
+                - lambda: 'id(count2) = id(count2) + 1;'
+                - delay: 800ms
 
 output:
   - platform: gpio
@@ -82,10 +114,12 @@ output:
 switch:
   - platform: gpio
     pin: GPIO18
+    id: relay1
     name: relay1
   - platform: gpio
-    name: relay2
     pin: GPIO19
+    id: relay2
+    name: relay1
 
 mqtt:
   on_message:
