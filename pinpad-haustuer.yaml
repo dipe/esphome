@@ -119,14 +119,13 @@ switch:
   - platform: gpio
     pin: GPIO19
     id: relay2
-    name: relay1
 
 mqtt:
   on_message:
     - topic: ${name}/beep
       then:
         - output.turn_on: buzzer
-        - delay: 50ms
+        - delay: 70ms
         - output.turn_off: buzzer
     - topic: ${name}/beep2
       then:
