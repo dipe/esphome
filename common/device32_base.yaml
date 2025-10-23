@@ -3,6 +3,8 @@ esphome:
 
 esp32:
   board: ${board}
+  framework:
+    type: esp-idf
 
 logger:
 
