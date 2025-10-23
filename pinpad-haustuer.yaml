@@ -11,14 +11,23 @@ packages:
 matrix_keypad:
   id: keypad
   rows:
-    - pin: GPIO25
-    - pin: GPIO22
-    - pin: GPIO32
-    - pin: GPIO21
+    - pin: GPIO22 # R1
+    - pin: GPIO02 # R2
+    - pin: GPIO16 # R3
+    - pin: GPIO21 # R4
   columns:
-    - pin: GPIO17
-    - pin: GPIO16
-    - pin: GPIO02
+    - pin: GPIO32 # C1
+    - pin: GPIO25 # C2
+    - pin: GPIO17 # C3
+  # rows:
+  #   - pin: GPIO25
+  #   - pin: GPIO22
+  #   - pin: GPIO32
+  #   - pin: GPIO21
+  # columns:
+  #   - pin: GPIO17
+  #   - pin: GPIO16
+  #   - pin: GPIO02
   keys: "123456789*0#"
   has_diodes: false
 
