@@ -10,15 +10,17 @@ packages:
 
 matrix_keypad:
   id: keypad
+  # Rubberdome keypad
   rows:
-    - pin: GPIO22 # R1
-    - pin: GPIO02 # R2
+    - pin: GPIO01 # R1
+    - pin: GPIO27 # R2
     - pin: GPIO16 # R3
     - pin: GPIO21 # R4
   columns:
     - pin: GPIO32 # C1
     - pin: GPIO25 # C2
-    - pin: GPIO17 # C3
+    - pin: GPIO04 # C3
+  # Membrane keypad
   # rows:
   #   - pin: GPIO25
   #   - pin: GPIO22
@@ -70,7 +72,7 @@ globals:
 binary_sensor:
   - platform: gpio
     pin:
-      number: GPIO5
+      number: GPIO03
       mode:
         input: true
         pullup: true
