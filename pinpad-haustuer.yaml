@@ -89,8 +89,10 @@ binary_sensor:
                 - lambda: 'return id(count1) < 3;'
             then:
                 - switch.turn_on: relay1
+                - switch.turn_on: relay2
                 - delay: 200ms
                 - switch.turn_off: relay1
+                - switch.turn_off: relay2
                 - lambda: 'id(count1) = id(count1) + 1;'
                 - delay: 800ms
   - platform: gpio
@@ -111,8 +113,10 @@ binary_sensor:
                 - binary_sensor.is_on: button2
                 - lambda: 'return id(count1) < 3;'
             then:
+                - switch.turn_on: relay1
                 - switch.turn_on: relay2
                 - delay: 200ms
+                - switch.turn_off: relay1
                 - switch.turn_off: relay2
                 - lambda: 'id(count2) = id(count2) + 1;'
                 - delay: 800ms
