@@ -1,0 +1,85 @@
+esphome:
+  name: servo-jens
+
+esp32:
+  board: wemos_d1_mini32
+  framework:
+    type: esp-idf
+
+logger:
+
+ota:
+  platform: esphome
+
+wifi: # optional
+  ssid: dein-wlan-name
+  password: dein-wlan-passwort
+  ap:
+    ssid: Servo-Jens-Fallback
+    password: test1234
+
+captive_portal: # schaltet den Fallback Access-Point an, wenn 1 Minute kein WLAN erreichbar
+
+mqtt: # optional
+  broker: homeassistant-jens.local
+  username: mqtt
+  password: test1234
+
+web_server: # optional
+  port: 80
+
+api: # Homeassistant-API, optional
+
+binary_sensor:
+  - platform: gpio
+    name: Taster Gruen
+    pin:
+      number: GPIO18
+      mode: INPUT_PULLUP
+      inverted: true
+    on_release:
+      then:
+        - switch.turn_on: led_gruen
+  - platform: gpio
+    name: Taster Rot
+    pin:
+      number: GPIO19
+      mode: INPUT_PULLUP
+      inverted: true
+    on_release:
+      then:
+        - switch.turn_on: led_rot
+
+switch:
+  - platform: gpio
+    name: LED Gruen
+    id: led_gruen
+    pin: GPIO26
+    interlock: [led_rot]
+    restore_mode: ALWAYS_ON
+    on_turn_on:
+      - servo.write:
+          id: servoantrieb
+          level: 0.0 # -1.0 (-90°) .. +1.0 (+90°) -> 180°
+  - platform: gpio
+    name: LED Rot
+    id: led_rot
+    pin: GPIO23
+    interlock: [led_gruen]
+    on_turn_on:
+      - servo.write:
+          id: servoantrieb
+          level: 1.0 # -1.0 (-90°) .. +1.0 (+90°) -> 180°
+      - delay: 2s
+
+servo:
+   - id: servoantrieb
+     output: output_servo
+     transition_length: 3s
+     auto_detach_time: 0.5s
+
+output:
+  - platform: ledc # PWM-Generator
+    pin: GPIO25
+    frequency: 50Hz
+    id: output_servo
