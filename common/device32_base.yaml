@@ -9,7 +9,7 @@ esp32:
 logger:
 
 ota:
-  platform: esphome
+  - platform: esphome
 
 sensor:
   - platform: uptime

@@ -23,7 +23,7 @@ sensor:
       - calibrate_linear:
         # - Map from sensor -> measured value
           - 0 -> 0
-          - 25.5 -> 22.0
+          - 25.5 -> 20.0
     humidity:
       id: "humidity"
       name: "humidity"
@@ -31,7 +31,7 @@ sensor:
       - calibrate_linear:
         # - Map from sensor -> measured value
           - 0 -> 0
-          - 35.5 -> 54.5
+          - 35.5 -> 55
   - platform: template
     name: "absolute_humidity"
     update_interval: 300s

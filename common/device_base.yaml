@@ -5,9 +5,9 @@ esp8266:
   board: ${board}
 
 logger:
-
+  
 ota:
-  platform: esphome
+  - platform: esphome
 
 sensor:
   - platform: uptime

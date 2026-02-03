@@ -16,9 +16,11 @@ switch:
   - platform: gpio
     pin: GPIO12
     name: relais
+    restore_mode: RESTORE_DEFAULT_OFF
 
 sensor:
   - platform: aht10
+    update_interval: 300s
     temperature:
       name: "temperature"
       id: "temperature"
@@ -26,8 +28,7 @@ sensor:
       - calibrate_linear:
         # - Map from sensor -> measured value
           - 0 -> 0
-          - 20.0 -> 16.0
-          - 27.5 -> 22.1
+          - 27.5 -> 20.5
     humidity:
       name: "humidity"
       id: "humidity"
@@ -35,8 +36,7 @@ sensor:
       - calibrate_linear:
         # - Map from sensor -> measured value
         - 0 -> 0  
-        - 41.3 -> 58.0
-        - 62.5 -> 78.0
+        - 41.3 -> 61.0
   - platform: template
     name: "absolute_humidity"
     update_interval: 300s
