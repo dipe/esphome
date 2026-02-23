@@ -1,0 +1,35 @@
+substitutions:
+  name: qualle
+  platform: ESP32
+  board: wemos_d1_mini32
+
+packages: 
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device32_base.yaml
+
+mqtt:
+  on_message:
+    - topic: ${name}/of
+      then:
+      - switch.turn_on: modus
+      - delay: 2s
+      - switch.turn_off: modus
+    - topic: ${name}/set
+      then:
+      - switch.turn_on: modus
+      - delay: 2s
+      - switch.turn_off: modus
+      - repeat:
+          count: !lambda 'return atoi(x.c_str());'
+          then:
+            - delay: 130ms
+            - switch.turn_on: modus
+            - delay: 130ms
+            - switch.turn_off: modus
+
+switch:
+  - platform: gpio
+    pin: GPIO18
+    id: modus
+    name: modus
