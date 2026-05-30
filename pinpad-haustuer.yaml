@@ -8,6 +8,10 @@ packages:
   mqtt: !include common/mqtt.yaml
   device_base: !include common/device32_base.yaml
 
+logger:
+    level: DEBUG
+    baud_rate: 0
+
 matrix_keypad:
   id: keypad
   # Rubberdome keypad
@@ -20,16 +24,6 @@ matrix_keypad:
     - pin: GPIO32 # C1
     - pin: GPIO25 # C2
     - pin: GPIO04 # C3
-  # Membrane keypad
-  # rows:
-  #   - pin: GPIO25
-  #   - pin: GPIO22
-  #   - pin: GPIO32
-  #   - pin: GPIO21
-  # columns:
-  #   - pin: GPIO17
-  #   - pin: GPIO16
-  #   - pin: GPIO02
   keys: "123456789*0#"
   has_diodes: false
 
@@ -63,12 +57,6 @@ key_collector:
       - delay: 10ms
       - output.turn_off: buzzer
 
-globals:
-  - id: count1
-    type: int
-  - id: count2
-    type: int
-
 binary_sensor:
   - platform: gpio
     pin:
@@ -79,22 +67,16 @@ binary_sensor:
       inverted: true
     id: button1
     name: "button1"
+    filters:
+      - delayed_on: 20ms
     on_press:
       then:
-        - lambda: 'id(count1) = 0;'
-        - while:
-            condition:
-              and:
-                - binary_sensor.is_on: button1
-                - lambda: 'return id(count1) < 3;'
-            then:
-                - switch.turn_on: relay1
-                - switch.turn_on: relay2
-                - delay: 200ms
-                - switch.turn_off: relay1
-                - switch.turn_off: relay2
-                - lambda: 'id(count1) = id(count1) + 1;'
-                - delay: 800ms
+        - switch.turn_on: relay1
+#        - switch.turn_on: relay2
+        - delay: 200ms
+        - switch.turn_off: relay1
+#        - switch.turn_off: relay2
+
   - platform: gpio
     pin:
       number: GPIO23
@@ -103,37 +85,32 @@ binary_sensor:
         pullup: true
       inverted: true
     id: button2
-    name: button2
+    name: "button2"
+    filters:
+      - delayed_on: 20ms
     on_press:
       then:
-        - lambda: 'id(count2) = 0;'
-        - while:
-            condition:
-              and:
-                - binary_sensor.is_on: button2
-                - lambda: 'return id(count1) < 3;'
-            then:
-                - switch.turn_on: relay1
-                - switch.turn_on: relay2
-                - delay: 200ms
-                - switch.turn_off: relay1
-                - switch.turn_off: relay2
-                - lambda: 'id(count2) = id(count2) + 1;'
-                - delay: 800ms
-
-output:
-  - platform: gpio
-    id: buzzer
-    pin: GPIO26
+#       - switch.turn_on: relay1
+        - switch.turn_on: relay2
+        - delay: 200ms
+#        - switch.turn_off: relay1
+        - switch.turn_off: relay2
 
 switch:
   - platform: gpio
     pin: GPIO18
     id: relay1
     name: relay1
+
   - platform: gpio
     pin: GPIO19
     id: relay2
+    name: relay2
+
+output:
+  - platform: gpio
+    id: buzzer
+    pin: GPIO26
 
 mqtt:
   on_message:
