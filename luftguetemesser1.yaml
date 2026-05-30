@@ -143,8 +143,11 @@ sensor:
         (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-
         ((17.67*id(temperature).state)/(243.5+id(temperature).state))));
   - platform: pmsx003
-    type: PMSX003
+    type: PMS5003ST
     uart_id: pms
+    formaldehyde:
+      name: formaldehyde
+      id: formaldehyde
     pm_1_0:
       name: "Particulate Matter <1.0µm Concentration"
       id: pm_1_0
@@ -197,6 +200,19 @@ text_sensor:
         }
       }
   - platform: template
+    name: alert_formaldehyde
+    id: alert_formaldehyde
+    lambda: !lambda |-
+      if (id(formaldehyde).state < 30.0) {    
+        return {"green"};
+      } else {
+        if (id(formaldehyde).state > 124.0) {    
+          return {"red"};
+        } else {
+          return {"yellow"};         
+        }
+      }
+  - platform: template
     name: alert_co2
     id: alert_co2
     lambda: !lambda |-
@@ -212,11 +228,11 @@ text_sensor:
   - platform: template
     name: alert
     lambda: !lambda |-
-      if (id(alert_voc).state == "green" && id(alert_co2).state == "green" && id(alert_pm).state == "green") {    
+      if (id(alert_voc).state == "green" && id(alert_co2).state == "green" && id(alert_pm).state == "green" && id(alert_formaldehyde).state == "green") {
         id(no_alert).execute();
         return {"green"};
       } else {
-        if (id(alert_voc).state == "red" || id(alert_co2).state == "red" || id(alert_pm).state == "red") {
+        if (id(alert_voc).state == "red" || id(alert_co2).state == "red" || id(alert_pm).state == "red" || id(alert_formaldehyde).state == "red") {
           id(red_alert).execute();
           return {"red"};
         } else {
