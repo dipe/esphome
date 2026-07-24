@@ -1,0 +1,22 @@
+substitutions:
+  name: aussen-licht # Einbauort: Lichtschalter Kellerabgang (obere Dose)
+  platform: ESP8266 # shelly 1
+  board: esp01_1m
+
+packages:
+  wifi: !include common/wifi.yaml
+  mqtt: !include common/mqtt.yaml
+  device_base: !include common/device_base.yaml
+
+switch:
+  - platform: gpio
+    pin: GPIO4
+    name: relay1
+
+binary_sensor:
+  - platform: gpio
+    name: "lichtsensor"
+    pin:
+      number: GPIO5
+    filters:
+      - delayed_on_off: 10min
