@@ -4,9 +4,9 @@ substitutions:
   board: esp01_1m
 
 packages:
-  wifi: !include common/wifi.yaml
-  mqtt: !include common/mqtt.yaml
-  device_base: !include common/device_base.yaml
+  wifi: !include ./common/wifi.yaml
+  mqtt: !include ./common/mqtt.yaml
+  device_base: !include ./common/device_base.yaml
 
 switch:
   - platform: gpio
