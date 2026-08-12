@@ -130,6 +130,9 @@ sensor:
       id: "gas_resistance"
   - platform: template
     name: "absolute_humidity"
+    unit_of_measurement: "g/m³"
+    accuracy_decimals: 2
+    state_class: measurement
     lambda: |-
       const float mw = 18.01534;    // molar mass of water g/mol
       const float r = 8.31447215;   // Universal gas constant J/mol/K
@@ -138,6 +141,10 @@ sensor:
         ((273.15 + id(temperature).state) * r); // in grams/m^3
   - platform: template
     name: "dew_point"
+    unit_of_measurement: "°C"
+    device_class: temperature
+    accuracy_decimals: 1
+    state_class: measurement
     lambda: |-
       return (243.5*(log(id(humidity).state/100)+((17.67*id(temperature).state)/
         (243.5+id(temperature).state)))/(17.67-log(id(humidity).state/100)-
