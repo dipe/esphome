@@ -2,4 +2,4 @@ mqtt:
   broker: dipe-pi
   username: !secret mqtt_user
   password: !secret mqtt_password
-
+  discovery: false
