@@ -14,3 +14,5 @@ sensor:
     name: uptime
   - platform: wifi_signal
     name: WiFi Signal
+
+api:
