@@ -51,6 +51,7 @@ switch:
     pin: GPIO12
   - platform: template
     name: "servo"
+    optimistic: true
     turn_on_action:
       - servo.write:
           id: my_servo
