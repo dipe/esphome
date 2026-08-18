@@ -1,5 +1,5 @@
 mqtt:
-  broker: dipe-pi
+  broker: dipe-pi.local
   username: !secret mqtt_user
   password: !secret mqtt_password
   discovery: false

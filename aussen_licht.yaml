@@ -18,5 +18,6 @@ binary_sensor:
     name: "lichtsensor"
     pin:
       number: GPIO5
+      inverted: true
     filters:
       - delayed_on_off: 10min
