@@ -21,6 +21,10 @@ binary_sensor:
     name: button2
     filters:
       - delayed_on_off: 10ms
+    on_click:
+      max_length: 1s
+      then:
+        - switch.toggle: relay1
 
 sensor:
   - platform: ntc

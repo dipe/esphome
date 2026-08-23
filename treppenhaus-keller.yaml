@@ -10,6 +10,7 @@ packages:
 
 switch:
   - platform: gpio
+    id: relay1
     pin: GPIO4
     name: relay1
 
@@ -20,3 +21,7 @@ binary_sensor:
     name: button1
     filters:
       - delayed_on_off: 10ms
+    on_click:
+      max_length: 1s
+      then:
+        - switch.toggle: relay1
