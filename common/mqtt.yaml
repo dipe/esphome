@@ -1,5 +1,5 @@
 mqtt:
-  broker: dipe-pi.local
+  broker: 172.28.29.133
   username: !secret mqtt_user
   password: !secret mqtt_password
   discovery: false

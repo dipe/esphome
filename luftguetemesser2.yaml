@@ -79,10 +79,13 @@ sensor:
         # - Map from sensor -> measured value
           - 0 -> 0
           - 22 -> 23
+      - throttle: 60s
     pressure:
       name: "Luftdruck"
       id: "pressure"
       state_topic: "luftguetemesser2/sensor/pressure/state"
+      filters:
+        - throttle: 60s
     humidity:
       name: "Relative Luftfeuchte"
       id: "humidity"
@@ -92,26 +95,37 @@ sensor:
         # - Map from sensor -> measured value
           - 0 -> 0
           - 80.8 -> 78.4
+      - throttle: 60s
     iaq:
       name: "Luftqualitätsindex"
       id: "iaq"
       state_topic: "luftguetemesser2/sensor/iaq/state"
+      filters:
+        - throttle: 60s
     co2_equivalent:
       name: "CO2-Äquivalent"
       id: "co2_equivalent"
       state_topic: "luftguetemesser2/sensor/co2_equivalent/state"
+      filters:
+        - throttle: 60s
     iaq_accuracy:
       name: "IAQ-Genauigkeit"
       id: iaq_accuracy
       state_topic: "luftguetemesser2/sensor/iaq_accuracy/state"
+      filters:
+        - throttle: 60s
     breath_voc_equivalent:
       name: "Atem-VOC-Äquivalent"
       id: "breath_voc_equivalent"
       state_topic: "luftguetemesser2/sensor/breath_voc_equivalent/state"
+      filters:
+        - throttle: 60s
     gas_resistance:
       name: "Gaswiderstand"
       id: "gas_resistance"
       state_topic: "luftguetemesser2/sensor/gas_resistance/state"
+      filters:
+        - throttle: 60s
   - platform: template
     name: "Absolute Luftfeuchte"
     state_topic: "luftguetemesser2/sensor/absolute_humidity/state"

@@ -102,9 +102,13 @@ sensor:
     temperature:
       name: "temperature"
       id: "temperature"
+      filters:
+        - throttle: 60s
     pressure:
       name: "pressure"
       id: "pressure"
+      filters:
+        - throttle: 60s
     humidity:
       name: "humidity"
       id: "humidity"
@@ -113,21 +117,32 @@ sensor:
         # - Map from sensor -> measured value
           - 0 -> 0
           - 64.5 -> 63.0
+      - throttle: 60s
     iaq:
       name: "iaq"
       id: "iaq"
+      filters:
+        - throttle: 60s
     co2_equivalent:
       name: "CO2 Equivalent"
       id: "co2_equivalent"
+      filters:
+        - throttle: 60s
     iaq_accuracy:
       name: iaq_accuracy
       id: iaq_accuracy
+      filters:
+        - throttle: 60s
     breath_voc_equivalent:
       name: "Breath VOC Equivalent"
       id: "breath_voc_equivalent"
+      filters:
+        - throttle: 60s
     gas_resistance:
       name: "Gas Resistance"
       id: "gas_resistance"
+      filters:
+        - throttle: 60s
   - platform: template
     name: "absolute_humidity"
     unit_of_measurement: "g/m³"
