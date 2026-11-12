@@ -22,6 +22,15 @@ remote_transmitter:
   pin: GPIO16
   carrier_duty_percent: 50%
 
+api:
+  actions:
+    - action: send_pronto
+      variables:
+        data: string
+      then:
+        - remote_transmitter.transmit_pronto:
+            data: !lambda 'return data;'
+
 mqtt:
   on_json_message:
     - topic: ${name}/send
