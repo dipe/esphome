@@ -44,6 +44,9 @@ key_collector:
       - mqtt.publish:
           topic: ${name}/pin
           payload: !lambda 'return x;'
+      - text_sensor.template.publish:
+          id: pincode_text
+          state: !lambda 'return x;'
     on_timeout:
       - output.turn_on: buzzer
       - delay: 10ms
@@ -111,6 +114,50 @@ output:
   - platform: gpio
     id: buzzer
     pin: GPIO26
+
+text_sensor:
+  - platform: template
+    name: "pincode"
+    id: pincode_text
+
+api:
+  actions:
+    - action: send_beep
+      variables:
+        type: string
+      then:
+        - if:
+            condition:
+              lambda: 'return type == "beep";'
+            then:
+              - output.turn_on: buzzer
+              - delay: 70ms
+              - output.turn_off: buzzer
+        - if:
+            condition:
+              lambda: 'return type == "beep2";'
+            then:
+              - output.turn_on: buzzer
+              - delay: 50ms
+              - output.turn_off: buzzer
+              - delay: 200ms
+              - output.turn_on: buzzer
+              - delay: 50ms
+              - output.turn_off: buzzer
+        - if:
+            condition:
+              lambda: 'return type == "beeep";'
+            then:
+              - output.turn_on: buzzer
+              - delay: 200ms
+              - output.turn_off: buzzer
+        - if:
+            condition:
+              lambda: 'return type == "beeeep";'
+            then:
+              - output.turn_on: buzzer
+              - delay: 1000ms
+              - output.turn_off: buzzer
 
 mqtt:
   on_message:
