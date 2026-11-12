@@ -33,6 +33,8 @@ sensor:
           - 66.0 -> 65.0
   - platform: template
     name: "absolute_humidity"
+    unit_of_measurement: "g/m³"
+    accuracy_decimals: 1
     update_interval: 300s
     lambda: |-
       const float mw = 18.01534;    // molar mass of water g/mol
