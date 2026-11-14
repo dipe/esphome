@@ -10,7 +10,6 @@ esphome:
 
 packages:
   wifi: !include common/wifi.yaml
-  mqtt: !include common/mqtt.yaml
   device_base: !include common/device_base.yaml
 
 binary_sensor:
