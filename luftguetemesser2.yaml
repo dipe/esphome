@@ -5,7 +5,6 @@ substitutions:
 
 packages:
   wifi: !include common/wifi.yaml
-  mqtt: !include common/mqtt.yaml
   device_base: !include common/device32_base.yaml
 
 logger:
@@ -45,27 +44,19 @@ switch:
   - platform: template
     name: "LEDs aktivieren"
     id: enable_leds
-    state_topic: "luftguetemesser2/switch/enable_leds/state"
-    command_topic: "luftguetemesser2/switch/enable_leds/command"
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
   - platform: gpio
     name: "Rot"
     id: red
-    state_topic: "luftguetemesser2/switch/red/state"
-    command_topic: "luftguetemesser2/switch/red/command"
     pin: GPIO19
   - platform: gpio
     name: "Gelb"
     id: yellow
-    state_topic: "luftguetemesser2/switch/yellow/state"
-    command_topic: "luftguetemesser2/switch/yellow/command"
     pin: GPIO18
   - platform: gpio
     name: "Grün"
     id: green
-    state_topic: "luftguetemesser2/switch/green/state"
-    command_topic: "luftguetemesser2/switch/green/command"
     pin: GPIO16
 
 sensor:
@@ -73,7 +64,6 @@ sensor:
     temperature:
       name: "Temperatur"
       id: "temperature"
-      state_topic: "luftguetemesser2/sensor/temperature/state"
       filters:
       - calibrate_linear:
         # - Map from sensor -> measured value
@@ -83,13 +73,11 @@ sensor:
     pressure:
       name: "Luftdruck"
       id: "pressure"
-      state_topic: "luftguetemesser2/sensor/pressure/state"
       filters:
         - throttle: 60s
     humidity:
       name: "Relative Luftfeuchte"
       id: "humidity"
-      state_topic: "luftguetemesser2/sensor/humidity/state"
       filters:
       - calibrate_linear:
         # - Map from sensor -> measured value
@@ -99,36 +87,30 @@ sensor:
     iaq:
       name: "Luftqualitätsindex"
       id: "iaq"
-      state_topic: "luftguetemesser2/sensor/iaq/state"
       filters:
         - throttle: 60s
     co2_equivalent:
       name: "CO2-Äquivalent"
       id: "co2_equivalent"
-      state_topic: "luftguetemesser2/sensor/co2_equivalent/state"
       filters:
         - throttle: 60s
     iaq_accuracy:
       name: "IAQ-Genauigkeit"
       id: iaq_accuracy
-      state_topic: "luftguetemesser2/sensor/iaq_accuracy/state"
       filters:
         - throttle: 60s
     breath_voc_equivalent:
       name: "Atem-VOC-Äquivalent"
       id: "breath_voc_equivalent"
-      state_topic: "luftguetemesser2/sensor/breath_voc_equivalent/state"
       filters:
         - throttle: 60s
     gas_resistance:
       name: "Gaswiderstand"
       id: "gas_resistance"
-      state_topic: "luftguetemesser2/sensor/gas_resistance/state"
       filters:
         - throttle: 60s
   - platform: template
     name: "Absolute Luftfeuchte"
-    state_topic: "luftguetemesser2/sensor/absolute_humidity/state"
     unit_of_measurement: "g/m³"
     accuracy_decimals: 2
     state_class: measurement
@@ -141,7 +123,6 @@ sensor:
         ((273.15 + id(temperature).state) * r); // in grams/m^3
   - platform: template
     name: "Taupunkt"
-    state_topic: "luftguetemesser2/sensor/dew_point/state"
     unit_of_measurement: "°C"
     device_class: temperature
     accuracy_decimals: 1
@@ -157,24 +138,19 @@ sensor:
     pm_1_0:
       name: "Feinstaub <1,0µm"
       id: pm_1_0
-      state_topic: "luftguetemesser2/sensor/particulate_matter__1_0__m_concentration/state"
     pm_2_5:
       name: "Feinstaub <2,5µm"
       id: pm_2_5
-      state_topic: "luftguetemesser2/sensor/particulate_matter__2_5__m_concentration/state"
     pm_10_0:
       name: "Feinstaub <10,0µm"
       id: pm_10_0
-      state_topic: "luftguetemesser2/sensor/particulate_matter__10_0__m_concentration/state"
     update_interval: 120s
   - platform: mhz19
     co2:
       name: "CO2"
       id: co2
-      state_topic: "luftguetemesser2/sensor/co2/state"
     temperature:
       name: "MH-Z19 Temperatur"
-      state_topic: "luftguetemesser2/sensor/mhz19-temperature/state"
     update_interval: 60s
     automatic_baseline_calibration: false
     uart_id: mh
@@ -183,11 +159,9 @@ text_sensor:
   - platform: bme680_bsec
     iaq_accuracy:
       name: "BME680 IAQ Genauigkeit"
-      state_topic: "luftguetemesser2/sensor/bme680_iaq_accuracy/state"
   - platform: template
     name: "VOC-Ampel"
     id: alert_voc
-    state_topic: "luftguetemesser2/sensor/alert_voc/state"
     lambda: !lambda |-
       if (id(breath_voc_equivalent).state < 3.0) {
         return {"green"};
@@ -201,7 +175,6 @@ text_sensor:
   - platform: template
     name: "Feinstaub-Ampel"
     id: alert_pm
-    state_topic: "luftguetemesser2/sensor/alert_pm/state"
     lambda: !lambda |-
       if (id(pm_1_0).state < 25.0 && id(pm_2_5).state < 25.0 && id(pm_10_0).state < 25.0) {
         return {"green"};
@@ -215,7 +188,6 @@ text_sensor:
   - platform: template
     name: "CO2-Ampel"
     id: alert_co2
-    state_topic: "luftguetemesser2/sensor/alert_co2/state"
     lambda: !lambda |-
       if (id(co2).state < 1000.0) {
         return {"green"};
@@ -229,7 +201,6 @@ text_sensor:
   - platform: template
     name: "Gesamt-Ampel"
     id: alert
-    state_topic: "luftguetemesser2/sensor/alert/state"
     lambda: !lambda |-
       if (id(alert_voc).state == "green" && id(alert_co2).state == "green" && id(alert_pm).state == "green") {
         id(no_alert).execute();
