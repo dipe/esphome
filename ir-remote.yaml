@@ -4,7 +4,6 @@ substitutions:
 
 packages:
   wifi: !include common/wifi.yaml
-  mqtt: !include common/mqtt.yaml
   device_base: !include common/device_base.yaml
 
 switch:
@@ -30,11 +29,4 @@ api:
       then:
         - remote_transmitter.transmit_pronto:
             data: !lambda 'return data;'
-
-mqtt:
-  on_json_message:
-    - topic: ${name}/send
-      then:
-        - remote_transmitter.transmit_pronto:
-            data: !lambda 'return x["data"];'
 
