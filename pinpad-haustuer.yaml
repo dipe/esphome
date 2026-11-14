@@ -3,9 +3,8 @@ substitutions:
   platform: ESP32
   board: wemos_d1_mini32
 
-packages: 
+packages:
   wifi: !include common/wifi.yaml
-  mqtt: !include common/mqtt.yaml
   device_base: !include common/device32_base.yaml
 
 logger:
@@ -41,9 +40,6 @@ key_collector:
       - delay: 10ms
       - output.turn_off: buzzer
     on_result:
-      - mqtt.publish:
-          topic: ${name}/pin
-          payload: !lambda 'return x;'
       - text_sensor.template.publish:
           id: pincode_text
           state: !lambda 'return x;'
@@ -158,30 +154,3 @@ api:
               - output.turn_on: buzzer
               - delay: 1000ms
               - output.turn_off: buzzer
-
-mqtt:
-  on_message:
-    - topic: ${name}/beep
-      then:
-        - output.turn_on: buzzer
-        - delay: 70ms
-        - output.turn_off: buzzer
-    - topic: ${name}/beep2
-      then:
-        - output.turn_on: buzzer
-        - delay: 50ms
-        - output.turn_off: buzzer
-        - delay: 200ms
-        - output.turn_on: buzzer
-        - delay: 50ms
-        - output.turn_off: buzzer
-    - topic: ${name}/beeep
-      then:
-        - output.turn_on: buzzer
-        - delay: 200ms
-        - output.turn_off: buzzer
-    - topic: ${name}/beeeep
-      then:
-        - output.turn_on: buzzer
-        - delay: 1000ms
-        - output.turn_off: buzzer
