@@ -3,30 +3,9 @@ substitutions:
   platform: ESP8266
   board: esp12e
 
-packages: 
+packages:
   wifi: !include common/wifi.yaml
-  mqtt: !include common/mqtt.yaml
   device_base: !include common/device_base.yaml
-
-mqtt:
-  on_message:
-    - topic: ${name}/of
-      then:
-      - switch.turn_on: modus
-      - delay: 2s
-      - switch.turn_off: modus
-    - topic: ${name}/set
-      then:
-      - switch.turn_on: modus
-      - delay: 2s
-      - switch.turn_off: modus
-      - repeat:
-          count: !lambda 'return atoi(x.c_str());'
-          then:
-            - delay: 130ms
-            - switch.turn_on: modus
-            - delay: 130ms
-            - switch.turn_off: modus
 
 globals:
   - id: modus_zielwert
