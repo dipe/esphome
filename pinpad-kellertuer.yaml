@@ -6,6 +6,12 @@ packages:
   wifi: !include common/wifi.yaml
   device_base: !include common/device_base.yaml
 
+globals:
+  - id: pin_seq
+    type: int
+    restore_value: false
+    initial_value: '0'
+
 matrix_keypad:
   id: keypad
   rows:
@@ -34,13 +40,12 @@ key_collector:
       - delay: 40ms
       - output.turn_off: buzzer
     on_result:
+      - globals.set:
+          id: pin_seq
+          value: !lambda 'return id(pin_seq) + 1;'
       - text_sensor.template.publish:
           id: pincode_text
-          state: ""
-      - delay: 100ms
-      - text_sensor.template.publish:
-          id: pincode_text
-          state: !lambda 'return x;'
+          state: !lambda 'return x + "#" + to_string(id(pin_seq));'
     on_timeout:
       - output.turn_on: buzzer
       - delay: 40ms
